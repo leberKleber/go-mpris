@@ -58,7 +58,7 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 		fmt.Print("-->")
 		offsetAsString, err := reader.ReadString('\n')
 		if err != nil {
-			return fmt.Errorf("failed to read offset: %w", err)
+			return fmt.Errorf("failed to read input: %w", err)
 		}
 
 		offset, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
@@ -67,13 +67,13 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			return nil
 		}
 
-		p.Seek(offset)
+		p.SeekTo(offset)
 	case "set-position":
 		fmt.Println("The track position in microseconds.")
 		fmt.Print("-->")
 		offsetAsString, err := reader.ReadString('\n')
 		if err != nil {
-			return fmt.Errorf("failed to read offset: %w", err)
+			return fmt.Errorf("failed to read input: %w", err)
 		}
 
 		position, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
@@ -83,6 +83,15 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 		}
 
 		p.SetPosition("/not/used", position)
+	case "open-uri":
+		fmt.Println("Open the given uri.")
+		fmt.Print("-->")
+		uri, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read input: %w", err)
+		}
+
+		p.OpenURI(strings.Trim(uri, "\n "))
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()

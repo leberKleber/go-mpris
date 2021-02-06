@@ -14,8 +14,9 @@ const (
 	playerPlayPauseMethod   = playerInterface + ".PlayPause"
 	playerStopMethod        = playerInterface + ".Stop"
 	playerPlayMethod        = playerInterface + ".Play"
-	playerSeekMethod        = playerInterface + ".Seek"
+	playerSeekMethod        = playerInterface + ".SeekTo"
 	playerSetPositionMethod = playerInterface + ".SetPosition"
+	playerOpenURIMethod     = playerInterface + ".OpenURI"
 )
 
 type Player struct {
@@ -92,14 +93,14 @@ func (p Player) Stop() {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerStopMethod, 0)
 }
 
-//Seek seeks forward in the current track by the specified number of microseconds.
+//SeekTo seeks forward in the current track by the specified number of microseconds.
 //Parameters:
 //- offset (The number of microseconds to seek forward.)
 //A negative value seeks back. If this would mean seeking back further than the start of the track, the position is set to 0.
 //If the value passed in would mean seeking beyond the end of the track, acts like a call to Next.
 //If the CanSeek property is false, this has no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Seek
-func (p Player) Seek(offset int64) {
+func (p Player) SeekTo(offset int64) {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerSeekMethod, 0, offset)
 }
 
@@ -114,4 +115,16 @@ func (p Player) Seek(offset int64) {
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:SetPosition
 func (p Player) SetPosition(trackID dbus.ObjectPath, position int64) {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerSetPositionMethod, 0, trackID, position)
+}
+
+//OpenURI opens the Uri given as an argument
+//Parameters:
+//- uri (Uri of the track to load. Its uri scheme should be an element of the org.mpris.MediaPlayer2.SupportedUriSchemes property and the mime-type should match one of the elements of the org.mpris.MediaPlayer2.SupportedMimeTypes.)
+//If the playback is stopped, starts playing
+//If the uri scheme or the mime-type of the uri to open is not supported, this method does nothing and may raise an error. In particular, if the list of available uri schemes is empty, this method may not be implemented.
+//Clients should not assume that the Uri has been opened as soon as this method returns. They should wait until the mpris:trackid field in the Metadata property changes.
+//If the media player implements the TrackList interface, then the opened track should be made part of the tracklist, the org.mpris.MediaPlayer2.TrackList.TrackAdded or org.mpris.MediaPlayer2.TrackList.TrackListReplaced signal should be fired, as well as the org.freedesktop.DBus.Properties.PropertiesChanged signal on the tracklist interface.
+//see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:OpenUri
+func (p Player) OpenURI(uri string) {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerOpenURIMethod, 0, uri)
 }
