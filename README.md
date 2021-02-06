@@ -16,7 +16,16 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [ ] SetPosition
 - [ ] OpenUri
 
+## Example
+Example cli client has been implemented.
 
+```shell
+git clone git@github.com:leberKleber/go-mpris.git
+
+go build examples/cli-client.go
+
+./cli-client
+```
 
 
 ---

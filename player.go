@@ -1,4 +1,4 @@
-package go_mpris
+package mpris
 
 import (
 	"fmt"
