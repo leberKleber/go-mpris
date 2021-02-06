@@ -10,7 +10,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Previous
 - [X] Pause
 - [X] PlayPause
-- [ ] Stop
+- [X] Stop
 - [ ] Play
 - [ ] Seek
 - [ ] SetPosition
