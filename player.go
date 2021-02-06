@@ -9,6 +9,7 @@ const playerObjectPath = "/org/mpris/MediaPlayer2"
 const playerInterface = "org.mpris.MediaPlayer2.Player"
 const playerNextMethod = playerInterface + ".Next"
 const playerPreviousMethod = playerInterface + ".Previous"
+const playerPauseMethod = playerInterface + ".Pause"
 
 type Player struct {
 	Name       string
@@ -45,4 +46,13 @@ func (p Player) Next() {
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Previous
 func (p Player) Previous() {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerPreviousMethod, 0)
+}
+
+//Pause pauses playback.
+//If playback is already paused, this has no effect.
+//Calling Play after this should cause playback to start again from the same position.
+//If CanPause is false, attempting to call this method should have no effect.
+//see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Pause
+func (p Player) Pause() {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerPauseMethod, 0)
 }

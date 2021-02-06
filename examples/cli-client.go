@@ -42,6 +42,8 @@ func handleInput(p mpris.Player, input string) error {
 		p.Next()
 	case "previous":
 		p.Next()
+	case "pause":
+		p.Pause()
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -54,4 +56,5 @@ func printHelp() {
 	fmt.Println("Available commands")
 	fmt.Println("- next")
 	fmt.Println("- previous")
+	fmt.Println("- pause")
 }
