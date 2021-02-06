@@ -61,13 +61,28 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			return fmt.Errorf("failed to read offset: %w", err)
 		}
 
-		_, err = strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
+		offset, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
 		if err != nil {
 			fmt.Println("input must be a number")
 			return nil
 		}
 
-		p.Seek(10000000)
+		p.Seek(offset)
+	case "set-position":
+		fmt.Println("The track position in microseconds.")
+		fmt.Print("-->")
+		offsetAsString, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read offset: %w", err)
+		}
+
+		position, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
+		if err != nil {
+			fmt.Println("input must be a number")
+			return nil
+		}
+
+		p.SetPosition("/not/used", position)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -83,4 +98,8 @@ func printHelp() {
 	fmt.Println("- previous")
 	fmt.Println("- pause")
 	fmt.Println("- play-pause")
+	fmt.Println("- stop")
+	fmt.Println("- play")
+	fmt.Println("- seek")
+	fmt.Println("- set-position")
 }

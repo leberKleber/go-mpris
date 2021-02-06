@@ -17,7 +17,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Stop
 - [X] Play
 - [X] Seek
-- [ ] SetPosition
+- [X] SetPosition
 - [ ] OpenUri
 
 ## Example

@@ -6,15 +6,16 @@ import (
 )
 
 const (
-	playerObjectPath      = "/org/mpris/MediaPlayer2"
-	playerInterface       = "org.mpris.MediaPlayer2.Player"
-	playerNextMethod      = playerInterface + ".Next"
-	playerPreviousMethod  = playerInterface + ".Previous"
-	playerPauseMethod     = playerInterface + ".Pause"
-	playerPlayPauseMethod = playerInterface + ".PlayPause"
-	playerStopMethod      = playerInterface + ".Stop"
-	playerPlayMethod      = playerInterface + ".Play"
-	playerSeekMethod      = playerInterface + ".Seek"
+	playerObjectPath        = "/org/mpris/MediaPlayer2"
+	playerInterface         = "org.mpris.MediaPlayer2.Player"
+	playerNextMethod        = playerInterface + ".Next"
+	playerPreviousMethod    = playerInterface + ".Previous"
+	playerPauseMethod       = playerInterface + ".Pause"
+	playerPlayPauseMethod   = playerInterface + ".PlayPause"
+	playerStopMethod        = playerInterface + ".Stop"
+	playerPlayMethod        = playerInterface + ".Play"
+	playerSeekMethod        = playerInterface + ".Seek"
+	playerSetPositionMethod = playerInterface + ".SetPosition"
 )
 
 type Player struct {
@@ -100,4 +101,17 @@ func (p Player) Stop() {
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Seek
 func (p Player) Seek(offset int64) {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerSeekMethod, 0, offset)
+}
+
+//SetPosition Sets the current track position in microseconds.
+//Parameters:
+//- trackID (The currently playing track's identifier. If this does not match the id of the currently-playing track, the call is ignored as "stale".)
+//- position (Track position in microseconds. This must be between 0 and <track_length>.)
+//If this does not match the id of the currently-playing track, the call is ignored as "stale".
+//If the Position argument is less than 0, do nothing.
+//If the Position argument is greater than the track length, do nothing.
+//If the CanSeek property is false, this has no effect.
+//see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:SetPosition
+func (p Player) SetPosition(trackID dbus.ObjectPath, position int64) {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerSetPositionMethod, 0, trackID, position)
 }
