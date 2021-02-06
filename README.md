@@ -11,7 +11,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Pause
 - [X] PlayPause
 - [X] Stop
-- [ ] Play
+- [X] Play
 - [ ] Seek
 - [ ] SetPosition
 - [ ] OpenUri

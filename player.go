@@ -13,6 +13,7 @@ const (
 	playerPauseMethod     = playerInterface + ".Pause"
 	playerPlayPauseMethod = playerInterface + ".PlayPause"
 	playerStopMethod      = playerInterface + ".Stop"
+	playerPlayMethod      = playerInterface + ".Play"
 )
 
 type Player struct {
@@ -77,4 +78,13 @@ func (p Player) PlayPause() {
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Stop
 func (p Player) Stop() {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerStopMethod, 0)
+}
+
+//Play starts or resumes playback.
+//If already playing, this has no effect.
+//If paused, playback resumes from the current position.
+//If there is no track to play, this has no effect.
+//If CanPlay is false, attempting to call this method should have no effect.
+func (p Player) Play() {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerPlayMethod, 0)
 }

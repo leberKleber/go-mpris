@@ -26,7 +26,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		err = handleInput(p, strings.TrimRight(input, "\n"))
+		err = handleInput(p, strings.TrimRight(input, "\n "))
 		if err != nil {
 			fmt.Printf("failed to exec command %q: %s\n", input, err)
 			os.Exit(1)
@@ -48,7 +48,8 @@ func handleInput(p mpris.Player, input string) error {
 		p.PlayPause()
 	case "stop":
 		p.Stop()
-
+	case "play":
+		p.Play()
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
