@@ -16,12 +16,12 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] PlayPause
 - [X] Stop
 - [X] Play
-- [ ] Seek
+- [X] Seek
 - [ ] SetPosition
 - [ ] OpenUri
 
 ## Example
-Example cli client has been implemented.
+Example cli has been implemented.
 
 ```shell
 git clone git@github.com:leberKleber/go-mpris.git

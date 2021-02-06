@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/leberKleber/go-mpris"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -26,7 +27,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		err = handleInput(p, strings.TrimRight(input, "\n "))
+		err = handleInput(p, reader, strings.Trim(input, "\n "))
 		if err != nil {
 			fmt.Printf("failed to exec command %q: %s\n", input, err)
 			os.Exit(1)
@@ -34,10 +35,12 @@ func main() {
 	}
 }
 
-func handleInput(p mpris.Player, input string) error {
+func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 	switch input {
 	case "help":
 		printHelp()
+	case "quit":
+		os.Exit(0)
 	case "next":
 		p.Next()
 	case "previous":
@@ -50,6 +53,21 @@ func handleInput(p mpris.Player, input string) error {
 		p.Stop()
 	case "play":
 		p.Play()
+	case "seek":
+		fmt.Println("The number of microseconds to seek forward")
+		fmt.Print("-->")
+		offsetAsString, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read offset: %w", err)
+		}
+
+		_, err = strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
+		if err != nil {
+			fmt.Println("input must be a number")
+			return nil
+		}
+
+		p.Seek(10000000)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -60,6 +78,7 @@ func handleInput(p mpris.Player, input string) error {
 
 func printHelp() {
 	fmt.Println("Available commands")
+	fmt.Println("- quit (exit this cli)")
 	fmt.Println("- next")
 	fmt.Println("- previous")
 	fmt.Println("- pause")

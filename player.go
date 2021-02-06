@@ -14,6 +14,7 @@ const (
 	playerPlayPauseMethod = playerInterface + ".PlayPause"
 	playerStopMethod      = playerInterface + ".Stop"
 	playerPlayMethod      = playerInterface + ".Play"
+	playerSeekMethod      = playerInterface + ".Seek"
 )
 
 type Player struct {
@@ -62,6 +63,16 @@ func (p Player) Pause() {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerPauseMethod, 0)
 }
 
+//Play starts or resumes playback.
+//If already playing, this has no effect.
+//If paused, playback resumes from the current position.
+//If there is no track to play, this has no effect.
+//If CanPlay is false, attempting to call this method should have no effect.
+//see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Play
+func (p Player) Play() {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerPlayMethod, 0)
+}
+
 //PlayPause pauses playback.
 //If playback is already paused, resumes playback.
 //If playback is stopped, starts playback.
@@ -80,11 +91,13 @@ func (p Player) Stop() {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerStopMethod, 0)
 }
 
-//Play starts or resumes playback.
-//If already playing, this has no effect.
-//If paused, playback resumes from the current position.
-//If there is no track to play, this has no effect.
-//If CanPlay is false, attempting to call this method should have no effect.
-func (p Player) Play() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerPlayMethod, 0)
+//Seek seeks forward in the current track by the specified number of microseconds.
+//Parameters:
+//- offset (The number of microseconds to seek forward.)
+//A negative value seeks back. If this would mean seeking back further than the start of the track, the position is set to 0.
+//If the value passed in would mean seeking beyond the end of the track, acts like a call to Next.
+//If the CanSeek property is false, this has no effect.
+//see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Seek
+func (p Player) Seek(offset int64) {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerSeekMethod, 0, offset)
 }
