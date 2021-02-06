@@ -1,13 +1,13 @@
 # go-mpris
 go mpris version 2.2 implementation 
 
-##Functions:
+## Functions:
 
-###Player
+### Player
 https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
-####Methods:
+#### Methods:
 - [X] Next
-- [ ] Previous
+- [X] Previous
 - [ ] Pause
 - [ ] PlayPause
 - [ ] Stop

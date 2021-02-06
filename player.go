@@ -8,6 +8,7 @@ import (
 const playerObjectPath = "/org/mpris/MediaPlayer2"
 const playerInterface = "org.mpris.MediaPlayer2.Player"
 const playerNextMethod = playerInterface + ".Next"
+const playerPreviousMethod = playerInterface + ".Previous"
 
 type Player struct {
 	Name       string
@@ -35,4 +36,13 @@ func NewPlayer(name string) (Player, error) {
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Next
 func (p Player) Next() {
 	p.Connection.Object(p.Name, playerObjectPath).Call(playerNextMethod, 0)
+}
+
+//Previous skips to the previous track in the tracklist.
+//If there is no previous track (and endless playback and track repeat are both off), stop playback.
+//If playback is paused or stopped, it remains that way.
+//If CanGoPrevious is false, attempting to call this method should have no effect.
+//see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Previous
+func (p Player) Previous() {
+	p.Connection.Object(p.Name, playerObjectPath).Call(playerPreviousMethod, 0)
 }
