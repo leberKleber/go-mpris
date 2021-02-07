@@ -1,5 +1,7 @@
 coverage:
   range: 80..90 # coverage lower than 50 is red, higher than 90 green, between color code
+  ignore:
+    - "examples/"
 
   status:
     project: # settings affecting project coverage

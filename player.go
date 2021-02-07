@@ -19,22 +19,41 @@ const (
 	playerOpenURIMethod     = playerInterface + ".OpenURI"
 )
 
-type Player struct {
-	Name       string
-	Connection *dbus.Conn
+var dbusSessionBus = dbus.SessionBus
+
+//go:generate moq -out dbus-wrapper_moq_test.go . dbusWrapperI
+type dbusWrapperI interface {
+	Call(dest string, path dbus.ObjectPath, method string, flags dbus.Flags, args ...interface{})
 }
 
-//NewPlayer returns a new Player which is already connected to session-bus via dbus.SessionBus. Create your own Player
-//instance if you want to use an other bus
+//Player is a implementation of dbus org.mpris.MediaPlayer2.Player. see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
+//Use NewPlayer to create a new instance with a connected session-bus via dbus.SessionBus.
+//Use NewPlayerWithConnection when you want to use a self-configured dbus.Conn
+type Player struct {
+	name       string
+	connection dbusWrapperI
+}
+
+//NewPlayer returns a new Player which is already connected to session-bus via dbus.SessionBus.
 func NewPlayer(name string) (Player, error) {
-	conn, err := dbus.SessionBus()
+	connection, err := dbusSessionBus()
 	if err != nil {
-		return Player{}, fmt.Errorf("failed to connect to session-bus")
+		return Player{}, fmt.Errorf("failed to connect to session-bus: %w", err)
 	}
 
 	return Player{
-		Name:       name,
-		Connection: conn,
+		name: name,
+		connection: dbusWrapper{
+			conn: connection,
+		},
+	}, nil
+}
+
+//NewPlayer returns a new Player with the given name and connection.
+func NewPlayerWithConnection(name string, connection *dbus.Conn) (Player, error) {
+	return Player{
+		name:       name,
+		connection: dbusWrapper{conn: connection},
 	}, nil
 }
 
@@ -44,7 +63,7 @@ func NewPlayer(name string) (Player, error) {
 //If CanGoNext is false, attempting to call this method should have no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Next
 func (p Player) Next() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerNextMethod, 0)
+	p.connection.Call(p.name, playerObjectPath, playerNextMethod, 0)
 }
 
 //Previous skips to the previous track in the tracklist.
@@ -53,7 +72,7 @@ func (p Player) Next() {
 //If CanGoPrevious is false, attempting to call this method should have no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Previous
 func (p Player) Previous() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerPreviousMethod, 0)
+	p.connection.Call(p.name, playerObjectPath, playerPreviousMethod, 0)
 }
 
 //Pause pauses playback.
@@ -62,7 +81,7 @@ func (p Player) Previous() {
 //If CanPause is false, attempting to call this method should have no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Pause
 func (p Player) Pause() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerPauseMethod, 0)
+	p.connection.Call(p.name, playerObjectPath, playerPauseMethod, 0)
 }
 
 //Play starts or resumes playback.
@@ -72,7 +91,7 @@ func (p Player) Pause() {
 //If CanPlay is false, attempting to call this method should have no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Play
 func (p Player) Play() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerPlayMethod, 0)
+	p.connection.Call(p.name, playerObjectPath, playerPlayMethod, 0)
 }
 
 //PlayPause pauses playback.
@@ -81,7 +100,7 @@ func (p Player) Play() {
 //If CanPause is false, attempting to call this method should have no effect and raise an error.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:PlayPause
 func (p Player) PlayPause() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerPlayPauseMethod, 0)
+	p.connection.Call(p.name, playerObjectPath, playerPlayPauseMethod, 0)
 }
 
 //Stop stops playback.
@@ -90,7 +109,7 @@ func (p Player) PlayPause() {
 //If CanControl is false, attempting to call this method should have no effect and raise an error.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Stop
 func (p Player) Stop() {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerStopMethod, 0)
+	p.connection.Call(p.name, playerObjectPath, playerStopMethod, 0)
 }
 
 //SeekTo seeks forward in the current track by the specified number of microseconds.
@@ -101,7 +120,7 @@ func (p Player) Stop() {
 //If the CanSeek property is false, this has no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:Seek
 func (p Player) SeekTo(offset int64) {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerSeekMethod, 0, offset)
+	p.connection.Call(p.name, playerObjectPath, playerSeekMethod, 0, offset)
 }
 
 //SetPosition Sets the current track position in microseconds.
@@ -114,7 +133,7 @@ func (p Player) SeekTo(offset int64) {
 //If the CanSeek property is false, this has no effect.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:SetPosition
 func (p Player) SetPosition(trackID dbus.ObjectPath, position int64) {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerSetPositionMethod, 0, trackID, position)
+	p.connection.Call(p.name, playerObjectPath, playerSetPositionMethod, 0, trackID, position)
 }
 
 //OpenURI opens the Uri given as an argument
@@ -126,5 +145,5 @@ func (p Player) SetPosition(trackID dbus.ObjectPath, position int64) {
 //If the media player implements the TrackList interface, then the opened track should be made part of the tracklist, the org.mpris.MediaPlayer2.TrackList.TrackAdded or org.mpris.MediaPlayer2.TrackList.TrackListReplaced signal should be fired, as well as the org.freedesktop.DBus.Properties.PropertiesChanged signal on the tracklist interface.
 //see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:OpenUri
 func (p Player) OpenURI(uri string) {
-	p.Connection.Object(p.Name, playerObjectPath).Call(playerOpenURIMethod, 0, uri)
+	p.connection.Call(p.name, playerObjectPath, playerOpenURIMethod, 0, uri)
 }

@@ -1,8 +1,8 @@
 # go-mpris
 
-[![Go](https://github.com/leberKleber/go-mpris/workflows/Go/badge.svg?branch=master)](https://github.com/leberKleber/go-mpris/actions?query=workflow%3Ago)
+[![Go](https://github.com/leberKleber/go-mpris/workflows/go/badge.svg)](https://github.com/leberKleber/go-mpris/actions?query=workflow%3Ago)
 [![Go Report Card](https://goreportcard.com/badge/github.com/leberKleber/go-mpris)](https://goreportcard.com/report/github.com/leberKleber/go-mpris)
-[![codecov](https://codecov.io/gh/leberKleber/go-mpris/branch/master/graph/badge.svg)](https://codecov.io/gh/leberKleber/go-mpris)
+[![codecov](https://codecov.io/gh/leberKleber/go-mpris/branch/main/graph/badge.svg)](https://codecov.io/gh/leberKleber/go-mpris)
 
 go mpris version 2.2 implementation
 
