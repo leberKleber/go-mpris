@@ -18,6 +18,7 @@ const (
 	playerSetPositionMethod      = playerInterface + ".SetPosition"
 	playerOpenURIMethod          = playerInterface + ".OpenURI"
 	playerPlaybackStatusProperty = playerInterface + ".PlaybackStatus"
+	playerLoopStatusProperty     = playerInterface + ".LoopStatus"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -31,6 +32,7 @@ type dbusConn interface {
 type dbusBusObject interface {
 	Call(method string, flags dbus.Flags, args ...interface{}) dbusCall
 	GetProperty(p string) (v dbus.Variant, e error)
+	SetProperty(p string, v interface{}) error
 }
 
 //go:generate moq -out dbus-call_moq_test.go . dbusCall
@@ -163,7 +165,6 @@ func (p Player) OpenURI(uri string) {
 }
 
 //PlaybackStatus returns the current playback status.
-//When this property changes, the org.freedesktop.DBus.Properties.PropertiesChanged signal is emitted with the new value.
 //May be "Playing", "Paused" or "Stopped".
 func (p Player) PlaybackStatus() (string, error) {
 	v, err := p.connection.Object(p.name, playerObjectPath).GetProperty(playerPlaybackStatusProperty)
@@ -172,4 +173,34 @@ func (p Player) PlaybackStatus() (string, error) {
 	}
 
 	return v.Value().(string), nil
+}
+
+//LoopStatus returns the current loop / repeat status
+//May be:
+//"None" if the playback will stop when there are no more tracks to play
+//"Track" if the current track will start again from the begining once it has finished playing
+//"Playlist" if the playback loops through a list of tracks
+//If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
+func (p Player) LoopStatus() (string, error) {
+	v, err := p.connection.Object(p.name, playerObjectPath).GetProperty(playerLoopStatusProperty)
+	if err != nil {
+		return "", fmt.Errorf("failed to get property %q: %w", playerLoopStatusProperty, err)
+	}
+
+	return v.Value().(string), nil
+}
+
+//SetLoopStatus sets the current loop / repeat status
+//May be:
+//"None" if the playback will stop when there are no more tracks to play
+//"Track" if the current track will start again from the begining once it has finished playing
+//"Playlist" if the playback loops through a list of tracks
+//If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
+func (p Player) SetLoopStatus(v string) error {
+	err := p.connection.Object(p.name, playerObjectPath).SetProperty(playerLoopStatusProperty, dbus.MakeVariant(v))
+	if err != nil {
+		return fmt.Errorf("failed to set property %q: %w", playerLoopStatusProperty, err)
+	}
+
+	return nil
 }

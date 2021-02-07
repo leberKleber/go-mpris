@@ -35,7 +35,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 
 #### Properties
 - [X] PlaybackStatus
-- [ ] LoopStatus
+- [X] LoopStatus
 - [ ] Rate
 - [ ] Shuffle
 - [ ] Metadata

@@ -8,39 +8,40 @@ import (
 	"sync"
 )
 
-var (
-	lockdbusBusObjectMockCall        sync.RWMutex
-	lockdbusBusObjectMockGetProperty sync.RWMutex
-)
-
 // Ensure, that dbusBusObjectMock does implement dbusBusObject.
 // If this is not the case, regenerate this file with moq.
 var _ dbusBusObject = &dbusBusObjectMock{}
 
 // dbusBusObjectMock is a mock implementation of dbusBusObject.
 //
-//     func TestSomethingThatUsesdbusBusObject(t *testing.T) {
+// 	func TestSomethingThatUsesdbusBusObject(t *testing.T) {
 //
-//         // make and configure a mocked dbusBusObject
-//         mockeddbusBusObject := &dbusBusObjectMock{
-//             CallFunc: func(method string, flags dbus.Flags, args ...interface{}) dbusCall {
-// 	               panic("mock out the Call method")
-//             },
-//             GetPropertyFunc: func(p string) (dbus.Variant, error) {
-// 	               panic("mock out the GetProperty method")
-//             },
-//         }
+// 		// make and configure a mocked dbusBusObject
+// 		mockeddbusBusObject := &dbusBusObjectMock{
+// 			CallFunc: func(method string, flags dbus.Flags, args ...interface{}) dbusCall {
+// 				panic("mock out the Call method")
+// 			},
+// 			GetPropertyFunc: func(p string) (dbus.Variant, error) {
+// 				panic("mock out the GetProperty method")
+// 			},
+// 			SetPropertyFunc: func(p string, v interface{}) error {
+// 				panic("mock out the SetProperty method")
+// 			},
+// 		}
 //
-//         // use mockeddbusBusObject in code that requires dbusBusObject
-//         // and then make assertions.
+// 		// use mockeddbusBusObject in code that requires dbusBusObject
+// 		// and then make assertions.
 //
-//     }
+// 	}
 type dbusBusObjectMock struct {
 	// CallFunc mocks the Call method.
 	CallFunc func(method string, flags dbus.Flags, args ...interface{}) dbusCall
 
 	// GetPropertyFunc mocks the GetProperty method.
 	GetPropertyFunc func(p string) (dbus.Variant, error)
+
+	// SetPropertyFunc mocks the SetProperty method.
+	SetPropertyFunc func(p string, v interface{}) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -58,7 +59,17 @@ type dbusBusObjectMock struct {
 			// P is the p argument value.
 			P string
 		}
+		// SetProperty holds details about calls to the SetProperty method.
+		SetProperty []struct {
+			// P is the p argument value.
+			P string
+			// V is the v argument value.
+			V interface{}
+		}
 	}
+	lockCall        sync.RWMutex
+	lockGetProperty sync.RWMutex
+	lockSetProperty sync.RWMutex
 }
 
 // Call calls CallFunc.
@@ -75,9 +86,9 @@ func (mock *dbusBusObjectMock) Call(method string, flags dbus.Flags, args ...int
 		Flags:  flags,
 		Args:   args,
 	}
-	lockdbusBusObjectMockCall.Lock()
+	mock.lockCall.Lock()
 	mock.calls.Call = append(mock.calls.Call, callInfo)
-	lockdbusBusObjectMockCall.Unlock()
+	mock.lockCall.Unlock()
 	return mock.CallFunc(method, flags, args...)
 }
 
@@ -94,9 +105,9 @@ func (mock *dbusBusObjectMock) CallCalls() []struct {
 		Flags  dbus.Flags
 		Args   []interface{}
 	}
-	lockdbusBusObjectMockCall.RLock()
+	mock.lockCall.RLock()
 	calls = mock.calls.Call
-	lockdbusBusObjectMockCall.RUnlock()
+	mock.lockCall.RUnlock()
 	return calls
 }
 
@@ -110,9 +121,9 @@ func (mock *dbusBusObjectMock) GetProperty(p string) (dbus.Variant, error) {
 	}{
 		P: p,
 	}
-	lockdbusBusObjectMockGetProperty.Lock()
+	mock.lockGetProperty.Lock()
 	mock.calls.GetProperty = append(mock.calls.GetProperty, callInfo)
-	lockdbusBusObjectMockGetProperty.Unlock()
+	mock.lockGetProperty.Unlock()
 	return mock.GetPropertyFunc(p)
 }
 
@@ -125,8 +136,43 @@ func (mock *dbusBusObjectMock) GetPropertyCalls() []struct {
 	var calls []struct {
 		P string
 	}
-	lockdbusBusObjectMockGetProperty.RLock()
+	mock.lockGetProperty.RLock()
 	calls = mock.calls.GetProperty
-	lockdbusBusObjectMockGetProperty.RUnlock()
+	mock.lockGetProperty.RUnlock()
+	return calls
+}
+
+// SetProperty calls SetPropertyFunc.
+func (mock *dbusBusObjectMock) SetProperty(p string, v interface{}) error {
+	if mock.SetPropertyFunc == nil {
+		panic("dbusBusObjectMock.SetPropertyFunc: method is nil but dbusBusObject.SetProperty was just called")
+	}
+	callInfo := struct {
+		P string
+		V interface{}
+	}{
+		P: p,
+		V: v,
+	}
+	mock.lockSetProperty.Lock()
+	mock.calls.SetProperty = append(mock.calls.SetProperty, callInfo)
+	mock.lockSetProperty.Unlock()
+	return mock.SetPropertyFunc(p, v)
+}
+
+// SetPropertyCalls gets all the calls that were made to SetProperty.
+// Check the length with:
+//     len(mockeddbusBusObject.SetPropertyCalls())
+func (mock *dbusBusObjectMock) SetPropertyCalls() []struct {
+	P string
+	V interface{}
+} {
+	var calls []struct {
+		P string
+		V interface{}
+	}
+	mock.lockSetProperty.RLock()
+	calls = mock.calls.SetProperty
+	mock.lockSetProperty.RUnlock()
 	return calls
 }

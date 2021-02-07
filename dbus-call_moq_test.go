@@ -7,29 +7,25 @@ import (
 	"sync"
 )
 
-var (
-	lockdbusCallMockStore sync.RWMutex
-)
-
 // Ensure, that dbusCallMock does implement dbusCall.
 // If this is not the case, regenerate this file with moq.
 var _ dbusCall = &dbusCallMock{}
 
 // dbusCallMock is a mock implementation of dbusCall.
 //
-//     func TestSomethingThatUsesdbusCall(t *testing.T) {
+// 	func TestSomethingThatUsesdbusCall(t *testing.T) {
 //
-//         // make and configure a mocked dbusCall
-//         mockeddbusCall := &dbusCallMock{
-//             StoreFunc: func(retvalues ...interface{}) error {
-// 	               panic("mock out the Store method")
-//             },
-//         }
+// 		// make and configure a mocked dbusCall
+// 		mockeddbusCall := &dbusCallMock{
+// 			StoreFunc: func(retvalues ...interface{}) error {
+// 				panic("mock out the Store method")
+// 			},
+// 		}
 //
-//         // use mockeddbusCall in code that requires dbusCall
-//         // and then make assertions.
+// 		// use mockeddbusCall in code that requires dbusCall
+// 		// and then make assertions.
 //
-//     }
+// 	}
 type dbusCallMock struct {
 	// StoreFunc mocks the Store method.
 	StoreFunc func(retvalues ...interface{}) error
@@ -42,6 +38,7 @@ type dbusCallMock struct {
 			Retvalues []interface{}
 		}
 	}
+	lockStore sync.RWMutex
 }
 
 // Store calls StoreFunc.
@@ -54,9 +51,9 @@ func (mock *dbusCallMock) Store(retvalues ...interface{}) error {
 	}{
 		Retvalues: retvalues,
 	}
-	lockdbusCallMockStore.Lock()
+	mock.lockStore.Lock()
 	mock.calls.Store = append(mock.calls.Store, callInfo)
-	lockdbusCallMockStore.Unlock()
+	mock.lockStore.Unlock()
 	return mock.StoreFunc(retvalues...)
 }
 
@@ -69,8 +66,8 @@ func (mock *dbusCallMock) StoreCalls() []struct {
 	var calls []struct {
 		Retvalues []interface{}
 	}
-	lockdbusCallMockStore.RLock()
+	mock.lockStore.RLock()
 	calls = mock.calls.Store
-	lockdbusCallMockStore.RUnlock()
+	mock.lockStore.RUnlock()
 	return calls
 }

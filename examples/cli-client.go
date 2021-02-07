@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	p, err := mpris.NewPlayer("org.mpris.MediaPlayer2.mpv")
+	p, err := mpris.NewPlayer("org.mpris.MediaPlayer2.vlc")
 	if err != nil {
 		fmt.Printf("failed to create gompris.Player: %s\n", err)
 		os.Exit(1)
@@ -98,6 +98,22 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			fmt.Printf("failed to get playback status: %s\n", err)
 		}
 		fmt.Println(s)
+	case "loop-status":
+		s, err := p.LoopStatus()
+		if err != nil {
+			fmt.Printf("failed to get loop status: %s\n", err)
+		}
+		fmt.Println(s)
+	case "set loop-status":
+		status, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read input: %w", err)
+		}
+
+		err = p.SetLoopStatus(strings.Trim(status, "\n "))
+		if err != nil {
+			fmt.Printf("failed to get loop status: %s\n", err)
+		}
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -117,4 +133,8 @@ func printHelp() {
 	fmt.Println("- play")
 	fmt.Println("- seek")
 	fmt.Println("- set-position")
+	fmt.Println("- open-uri")
+	fmt.Println("- playback-status")
+	fmt.Println("- loop-status")
+	fmt.Println("- set-loop-status")
 }

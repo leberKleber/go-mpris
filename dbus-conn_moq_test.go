@@ -8,29 +8,25 @@ import (
 	"sync"
 )
 
-var (
-	lockdbusConnMockObject sync.RWMutex
-)
-
 // Ensure, that dbusConnMock does implement dbusConn.
 // If this is not the case, regenerate this file with moq.
 var _ dbusConn = &dbusConnMock{}
 
 // dbusConnMock is a mock implementation of dbusConn.
 //
-//     func TestSomethingThatUsesdbusConn(t *testing.T) {
+// 	func TestSomethingThatUsesdbusConn(t *testing.T) {
 //
-//         // make and configure a mocked dbusConn
-//         mockeddbusConn := &dbusConnMock{
-//             ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
-// 	               panic("mock out the Object method")
-//             },
-//         }
+// 		// make and configure a mocked dbusConn
+// 		mockeddbusConn := &dbusConnMock{
+// 			ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+// 				panic("mock out the Object method")
+// 			},
+// 		}
 //
-//         // use mockeddbusConn in code that requires dbusConn
-//         // and then make assertions.
+// 		// use mockeddbusConn in code that requires dbusConn
+// 		// and then make assertions.
 //
-//     }
+// 	}
 type dbusConnMock struct {
 	// ObjectFunc mocks the Object method.
 	ObjectFunc func(dest string, path dbus.ObjectPath) dbusBusObject
@@ -45,6 +41,7 @@ type dbusConnMock struct {
 			Path dbus.ObjectPath
 		}
 	}
+	lockObject sync.RWMutex
 }
 
 // Object calls ObjectFunc.
@@ -59,9 +56,9 @@ func (mock *dbusConnMock) Object(dest string, path dbus.ObjectPath) dbusBusObjec
 		Dest: dest,
 		Path: path,
 	}
-	lockdbusConnMockObject.Lock()
+	mock.lockObject.Lock()
 	mock.calls.Object = append(mock.calls.Object, callInfo)
-	lockdbusConnMockObject.Unlock()
+	mock.lockObject.Unlock()
 	return mock.ObjectFunc(dest, path)
 }
 
@@ -76,8 +73,8 @@ func (mock *dbusConnMock) ObjectCalls() []struct {
 		Dest string
 		Path dbus.ObjectPath
 	}
-	lockdbusConnMockObject.RLock()
+	mock.lockObject.RLock()
 	calls = mock.calls.Object
-	lockdbusConnMockObject.RUnlock()
+	mock.lockObject.RUnlock()
 	return calls
 }

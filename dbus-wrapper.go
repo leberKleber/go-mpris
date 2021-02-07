@@ -26,6 +26,10 @@ func (w dbusBusObjectWrapper) GetProperty(p string) (dbus.Variant, error) {
 	return w.obj.GetProperty(p)
 }
 
+func (w dbusBusObjectWrapper) SetProperty(p string, v interface{}) error {
+	return w.obj.SetProperty(p, v)
+}
+
 type dbusCallWrapper struct {
 	call *dbus.Call
 }

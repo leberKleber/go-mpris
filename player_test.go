@@ -164,7 +164,7 @@ func TestPlayer_Methods(t *testing.T) {
 	}
 }
 
-func TestPlayer_Properties(t *testing.T) {
+func TestPlayer_GetProperties(t *testing.T) {
 	tests := []struct {
 		name           string
 		givenName      string
@@ -187,6 +187,43 @@ func TestPlayer_Properties(t *testing.T) {
 			expectedDest: "playback-status",
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.PlaybackStatus",
+		},
+		{
+			name:      "PlaybackStatus error",
+			callError: errors.New("nope"),
+			givenName: "playback-status",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.PlaybackStatus()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.PlaybackStatus\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "playback-status",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.PlaybackStatus",
+		},
+		{
+			name:        "LoopStatus",
+			callVariant: dbus.MakeVariant("Track"),
+			givenName:   "loop-status",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.LoopStatus()
+				assert.NoError(t, err)
+				assert.Equal(t, "Track", s, "status is not as expected")
+			},
+			expectedDest: "loop-status",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.LoopStatus",
+		},
+		{
+			name:      "LoopStatus error",
+			callError: errors.New("nope"),
+			givenName: "loop-status",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.LoopStatus()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.LoopStatus\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "loop-status",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.LoopStatus",
 		},
 	}
 
@@ -214,6 +251,76 @@ func TestPlayer_Properties(t *testing.T) {
 			assert.Equal(t, tt.expectedDest, calledDest, "called dest is not as expected")
 			assert.Equal(t, tt.expectedPath, calledPath, "called path is not as expected")
 			assert.Equal(t, tt.expectedKey, calledKey, "called key is not as expected")
+		})
+	}
+}
+
+func TestPlayer_SetProperties(t *testing.T) {
+	tests := []struct {
+		name             string
+		givenName        string
+		callError        error
+		runAndValidate   func(t *testing.T, p *Player)
+		expectedDest     string
+		expectedPath     dbus.ObjectPath
+		expectedProperty string
+		expectedValue    interface{}
+	}{
+		{
+			name:      "LoopStatus",
+			givenName: "loop-status",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetLoopStatus("Track")
+				assert.NoError(t, err)
+			},
+			expectedDest:     "loop-status",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.LoopStatus",
+			expectedValue:    dbus.MakeVariant("Track"),
+		},
+		{
+			name:      "LoopStatus error",
+			callError: errors.New("nope"),
+			givenName: "loop-status",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetLoopStatus("Playlist")
+				assert.Equal(t, "failed to set property \"org.mpris.MediaPlayer2.Player.LoopStatus\": nope", fmt.Sprint(err))
+			},
+			expectedDest:     "loop-status",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.LoopStatus",
+			expectedValue:    dbus.MakeVariant("Playlist"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var calledDest string
+			var calledPath dbus.ObjectPath
+			var calledProperty string
+			var calledValue interface{}
+
+			m := &dbusConnMock{
+				ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+					calledDest = dest
+					calledPath = path
+					return &dbusBusObjectMock{
+						SetPropertyFunc: func(p string, v interface{}) error {
+							calledProperty = p
+							calledValue = v
+
+							return tt.callError
+						},
+					}
+				},
+			}
+
+			tt.runAndValidate(t, &Player{name: tt.givenName, connection: m})
+
+			assert.Equal(t, tt.expectedDest, calledDest, "called dest is not as expected")
+			assert.Equal(t, tt.expectedPath, calledPath, "called path is not as expected")
+			assert.Equal(t, tt.expectedProperty, calledProperty, "called property is not as expected")
+			assert.Equal(t, tt.expectedValue, calledValue, "called value is not as expected")
 		})
 	}
 }
