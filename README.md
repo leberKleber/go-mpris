@@ -13,7 +13,6 @@ go mpris version 2.2 implementation
 https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 
 #### Methods:
-
 - [X] Next
 - [X] Previous
 - [X] Pause
@@ -23,6 +22,23 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Seek > SeekTo (Seek is a reserved function name and can not be used in this case)
 - [X] SetPosition
 - [X] OpenUri
+
+#### Properties
+- [ ] PlaybackStatus
+- [ ] LoopStatus
+- [ ] Rate
+- [ ] Shuffle
+- [ ] Metadata
+- [ ] Volume
+- [ ] Position
+- [ ] MinimumRate
+- [ ] MaximumRate
+- [ ] CanGoNext
+- [ ] CanGoPrevious
+- [ ] CanPlay
+- [ ] CanPause
+- [ ] CanSeek
+- [ ] CanControl
 
 ## Example
 
@@ -38,22 +54,6 @@ go build examples/cli-client.go
 
 ---
 Signals Seeked    (x: Position)
-
-Properties PlaybackStatus s (Playback_Status)    Read only 		
-LoopStatus s (Loop_Status)    Read/Write        (optional)
-Rate d (Playback_Rate)    Read/Write 		
-Shuffle b Read/Write        (optional)
-Metadata a{sv} (Metadata_Map)    Read only 		
-Volume d (Volume)    Read/Write 		
-Position x (Time_In_Us)    Read only 		
-MinimumRate d (Playback_Rate)    Read only 		
-MaximumRate d (Playback_Rate)    Read only 		
-CanGoNext b Read only 		
-CanGoPrevious b Read only 		
-CanPlay b Read only 		
-CanPause b Read only 		
-CanSeek b Read only 		
-CanControl b Read only
 
 Types Track_Id Simple Type o 	
 Playback_Rate Simple Type d 	
