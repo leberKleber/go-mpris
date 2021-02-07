@@ -92,6 +92,12 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 		}
 
 		p.OpenURI(strings.Trim(uri, "\n "))
+	case "playback-status":
+		s, err := p.PlaybackStatus()
+		if err != nil {
+			fmt.Printf("failed to get playback status: %s\n", err)
+		}
+		fmt.Println(s)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()

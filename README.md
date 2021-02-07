@@ -6,6 +6,16 @@
 
 go mpris version 2.2 implementation
 
+Example cli has been implemented.
+
+```shell
+git clone git@github.com:leberKleber/go-mpris.git
+
+go build examples/cli-client.go
+
+./cli-client
+```
+
 ## Functions:
 
 ### Player
@@ -24,7 +34,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] OpenUri
 
 #### Properties
-- [ ] PlaybackStatus
+- [X] PlaybackStatus
 - [ ] LoopStatus
 - [ ] Rate
 - [ ] Shuffle
@@ -40,24 +50,5 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [ ] CanSeek
 - [ ] CanControl
 
-## Example
-
-Example cli has been implemented.
-
-```shell
-git clone git@github.com:leberKleber/go-mpris.git
-
-go build examples/cli-client.go
-
-./cli-client
-```
-
----
-Signals Seeked    (x: Position)
-
-Types Track_Id Simple Type o 	
-Playback_Rate Simple Type d 	
-Volume Simple Type d 	
-Time_In_Us Simple Type x 	
-Playback_Status Enum s 	
-Loop_Status Enum s 	
+#### Signals
+- [ ] Seeked

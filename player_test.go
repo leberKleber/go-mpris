@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestPlayer(t *testing.T) {
+func TestPlayer_Methods(t *testing.T) {
 	tests := []struct {
 		name           string
 		givenName      string
@@ -30,7 +30,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.Next",
 			expectedFlags:  0,
 			expectedArgs:   nil,
-		}, {
+		},
+		{
 			name:      "Previous",
 			givenName: "previous",
 			action: func(p *Player) {
@@ -41,7 +42,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.Previous",
 			expectedFlags:  0,
 			expectedArgs:   nil,
-		}, {
+		},
+		{
 			name:      "Pause",
 			givenName: "pause",
 			action: func(p *Player) {
@@ -52,7 +54,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.Pause",
 			expectedFlags:  0,
 			expectedArgs:   nil,
-		}, {
+		},
+		{
 			name:      "Play",
 			givenName: "play",
 			action: func(p *Player) {
@@ -63,7 +66,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.Play",
 			expectedFlags:  0,
 			expectedArgs:   nil,
-		}, {
+		},
+		{
 			name:      "PlayPause",
 			givenName: "play-pause",
 			action: func(p *Player) {
@@ -74,7 +78,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.PlayPause",
 			expectedFlags:  0,
 			expectedArgs:   nil,
-		}, {
+		},
+		{
 			name:      "SeekTo",
 			givenName: "seek-to",
 			action: func(p *Player) {
@@ -85,7 +90,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.SeekTo",
 			expectedFlags:  0,
 			expectedArgs:   []interface{}{int64(12356789)},
-		}, {
+		},
+		{
 			name:      "Stop",
 			givenName: "stop",
 			action: func(p *Player) {
@@ -96,7 +102,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.Stop",
 			expectedFlags:  0,
 			expectedArgs:   nil,
-		}, {
+		},
+		{
 			name:      "SetPosition",
 			givenName: "set-position",
 			action: func(p *Player) {
@@ -107,7 +114,8 @@ func TestPlayer(t *testing.T) {
 			expectedMethod: "org.mpris.MediaPlayer2.Player.SetPosition",
 			expectedFlags:  0,
 			expectedArgs:   []interface{}{dbus.ObjectPath("/my/path"), int64(123456789)},
-		}, {
+		},
+		{
 			name:      "OpenURI",
 			givenName: "open-uri",
 			action: func(p *Player) {
@@ -123,25 +131,28 @@ func TestPlayer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dbusWrapperMock := &dbusWrapperIMock{}
-
 			var givenDest string
 			var givenPath dbus.ObjectPath
 			var givenMethod string
 			var givenFlags dbus.Flags
 			var givenArgs []interface{}
 
-			dbusWrapperMock.CallFunc = func(dest string, path dbus.ObjectPath, method string, flags dbus.Flags, args ...interface{}) {
-				givenDest = dest
-				givenPath = path
-				givenMethod = method
-				givenFlags = flags
-				givenArgs = args
-			}
-
 			tt.action(&Player{
-				name:       tt.givenName,
-				connection: dbusWrapperMock,
+				name: tt.givenName,
+				connection: &dbusConnMock{
+					ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+						givenDest = dest
+						givenPath = path
+						return &dbusBusObjectMock{
+							CallFunc: func(method string, flags dbus.Flags, args ...interface{}) dbusCall {
+								givenMethod = method
+								givenFlags = flags
+								givenArgs = args
+								return nil
+							},
+						}
+					},
+				},
 			})
 
 			assert.Equal(t, tt.expectedDest, givenDest, "given dest is not as expected")
@@ -153,20 +164,75 @@ func TestPlayer(t *testing.T) {
 	}
 }
 
+func TestPlayer_Properties(t *testing.T) {
+	tests := []struct {
+		name           string
+		givenName      string
+		callVariant    dbus.Variant
+		callError      error
+		runAndValidate func(t *testing.T, p *Player)
+		expectedDest   string
+		expectedPath   dbus.ObjectPath
+		expectedKey    string
+	}{
+		{
+			name:        "PlaybackStatus",
+			callVariant: dbus.MakeVariant("Paused"),
+			givenName:   "playback-status",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.PlaybackStatus()
+				assert.NoError(t, err)
+				assert.Equal(t, "Paused", s, "status is not as expected")
+			},
+			expectedDest: "playback-status",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.PlaybackStatus",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var calledDest string
+			var calledPath dbus.ObjectPath
+			var calledKey string
+
+			m := &dbusConnMock{
+				ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+					calledDest = dest
+					calledPath = path
+					return &dbusBusObjectMock{
+						GetPropertyFunc: func(key string) (dbus.Variant, error) {
+							calledKey = key
+							return tt.callVariant, tt.callError
+						},
+					}
+				},
+			}
+
+			tt.runAndValidate(t, &Player{name: tt.givenName, connection: m})
+
+			assert.Equal(t, tt.expectedDest, calledDest, "called dest is not as expected")
+			assert.Equal(t, tt.expectedPath, calledPath, "called path is not as expected")
+			assert.Equal(t, tt.expectedKey, calledKey, "called key is not as expected")
+		})
+	}
+}
+
 func TestNewPlayer(t *testing.T) {
 	oldDbusSessionBus := dbusSessionBus
 	defer func() {
 		dbusSessionBus = oldDbusSessionBus
 	}()
 
-	dbConn := &dbus.Conn{}
+	dbusConn := &dbus.Conn{}
 	dbusSessionBus = func() (conn *dbus.Conn, err error) {
-		return dbConn, nil
+		return dbusConn, nil
 	}
 
 	p, err := NewPlayer("test")
+
 	assert.NoError(t, err, "unexpected error")
-	assert.Equal(t, dbusWrapper{conn: dbConn}, p.connection)
+	assert.Equal(t, &dbusConnWrapper{dbusConn}, p.connection)
 }
 
 func TestNewPlayer_Error(t *testing.T) {
@@ -188,10 +254,8 @@ func TestNewPlayer_Error(t *testing.T) {
 }
 
 func TestNewPlayerWithConnection(t *testing.T) {
-	dbConn := &dbus.Conn{}
+	dbusConn := &dbus.Conn{}
 
-	p, err := NewPlayerWithConnection("test", dbConn)
-	assert.NoError(t, err, "unexpected error")
-	assert.Equal(t, dbusWrapper{conn: dbConn}, p.connection)
-
+	p := NewPlayerWithConnection("test", dbusConn)
+	assert.Equal(t, &dbusConnWrapper{dbusConn}, p.connection)
 }
