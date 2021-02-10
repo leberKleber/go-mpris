@@ -42,7 +42,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Volume
 - [X] Position
 - [X] MinimumRate
-- [ ] MaximumRate
+- [X] MaximumRate
 - [ ] CanGoNext
 - [ ] CanGoPrevious
 - [ ] CanPlay

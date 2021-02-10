@@ -196,6 +196,12 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			fmt.Printf("failed to get minimum-rate: %s\n", err)
 		}
 		fmt.Println(s)
+	case "maximum-rate":
+		s, err := p.MaximumRate()
+		if err != nil {
+			fmt.Printf("failed to get maximum-rate: %s\n", err)
+		}
+		fmt.Println(s)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -226,4 +232,5 @@ func printHelp() {
 	fmt.Println("- set-volume")
 	fmt.Println("- position")
 	fmt.Println("- minimum-rate")
+	fmt.Println("- maximum-rate")
 }

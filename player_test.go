@@ -381,6 +381,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.MinimumRate",
 		},
+		{
+			name:        "MaximumRate",
+			callVariant: dbus.MakeVariant(0.000001),
+			givenName:   "maximum-rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.MaximumRate()
+				assert.NoError(t, err)
+				assert.Equal(t, 0.000001, s, "maximum-rate is not as expected")
+			},
+			expectedDest: "maximum-rate",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.MaximumRate",
+		},
+		{
+			name:      "MaximumRate error",
+			callError: errors.New("nope"),
+			givenName: "maximum-rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.MaximumRate()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.MaximumRate\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "maximum-rate",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.MaximumRate",
+		},
 	}
 
 	for _, tt := range tests {
