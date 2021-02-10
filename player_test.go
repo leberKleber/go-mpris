@@ -275,6 +275,37 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.Shuffle",
 		},
+		{
+			name: "Metadata",
+			callVariant: dbus.MakeVariant(map[string]dbus.Variant{
+				"myKey1": dbus.MakeVariant(true),
+				"myKey2": dbus.MakeVariant("key2"),
+			}),
+			givenName: "metadata",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.Metadata()
+				assert.NoError(t, err)
+				assert.Equal(t, map[string]dbus.Variant{
+					"myKey1": dbus.MakeVariant(true),
+					"myKey2": dbus.MakeVariant("key2"),
+				}, s, "metadata is not as expected")
+			},
+			expectedDest: "metadata",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Metadata",
+		},
+		{
+			name:      "Metadata error",
+			callError: errors.New("nope"),
+			givenName: "metadata",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.Metadata()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.Metadata\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "metadata",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Metadata",
+		},
 	}
 
 	for _, tt := range tests {

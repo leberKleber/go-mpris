@@ -21,6 +21,7 @@ const (
 	playerLoopStatusProperty     = playerInterface + ".LoopStatus"
 	playerRateProperty           = playerInterface + ".Rate"
 	playerShuffleProperty        = playerInterface + ".Shuffle"
+	playerMetadataProperty       = playerInterface + ".Metadata"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -241,6 +242,18 @@ func (p Player) Shuffle() (bool, error) {
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Shuffle
 func (p Player) SetShuffle(shuffle bool) error {
 	return p.setProperty(playerShuffleProperty, shuffle)
+}
+
+//Metadata metadata of the current element.
+//If there is a current track, this must have a "mpris:trackid" entry (of D-Bus type "o") at the very least, which contains a D-Bus path that uniquely identifies this track.
+//See the type documentation for more details.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Metadata
+func (p Player) Metadata() (map[string]dbus.Variant, error) {
+	v, err := p.getProperty(playerMetadataProperty)
+	if err != nil {
+		return nil, err
+	}
+	return v.Value().(map[string]dbus.Variant), nil
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {

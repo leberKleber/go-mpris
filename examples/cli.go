@@ -156,6 +156,12 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 		if err != nil {
 			fmt.Printf("failed to set shuffle: %s\n", err)
 		}
+	case "metadata":
+		s, err := p.Metadata()
+		if err != nil {
+			fmt.Printf("failed to get metadata: %s\n", err)
+		}
+		fmt.Println(s)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
