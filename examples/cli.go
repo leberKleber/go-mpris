@@ -214,6 +214,12 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			fmt.Printf("failed to get can-go-previous: %s\n", err)
 		}
 		fmt.Println(s)
+	case "can-play":
+		s, err := p.CanPlay()
+		if err != nil {
+			fmt.Printf("failed to get can-play: %s\n", err)
+		}
+		fmt.Println(s)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -247,4 +253,5 @@ func printHelp() {
 	fmt.Println("- maximum-rate")
 	fmt.Println("- can-go-next")
 	fmt.Println("- can-go-previous")
+	fmt.Println("- can-play")
 }

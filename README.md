@@ -45,7 +45,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] MaximumRate
 - [X] CanGoNext
 - [X] CanGoPrevious
-- [ ] CanPlay
+- [X] CanPlay
 - [ ] CanPause
 - [ ] CanSeek
 - [ ] CanControl
