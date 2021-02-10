@@ -22,6 +22,7 @@ const (
 	playerRateProperty           = playerInterface + ".Rate"
 	playerShuffleProperty        = playerInterface + ".Shuffle"
 	playerMetadataProperty       = playerInterface + ".Metadata"
+	playerVolumeProperty         = playerInterface + ".Volume"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -254,6 +255,26 @@ func (p Player) Metadata() (map[string]dbus.Variant, error) {
 		return nil, err
 	}
 	return v.Value().(map[string]dbus.Variant), nil
+}
+
+//Volume returns the volume level.
+//When setting, if a negative value is passed, the volume should be set to 0.0.
+//If CanControl is false, attempting to set this property should have no effect and raise an error.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Volume
+func (p Player) Volume() (float64, error) {
+	v, err := p.getProperty(playerVolumeProperty)
+	if err != nil {
+		return 0, err
+	}
+	return v.Value().(float64), nil
+}
+
+//SetVolume sets the volume level.
+//When setting, if a negative value is passed, the volume should be set to 0.0.
+//If CanControl is false, attempting to set this property should have no effect and raise an error.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Volume
+func (p Player) SetVolume(volume float64) error {
+	return p.setProperty(playerVolumeProperty, volume)
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {

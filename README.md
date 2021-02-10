@@ -39,7 +39,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Rate
 - [X] Shuffle
 - [X] Metadata
-- [ ] Volume
+- [X] Volume
 - [ ] Position
 - [ ] MinimumRate
 - [ ] MaximumRate

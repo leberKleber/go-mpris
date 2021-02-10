@@ -306,6 +306,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.Metadata",
 		},
+		{
+			name:        "Volume",
+			callVariant: dbus.MakeVariant(0.5),
+			givenName:   "volume",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.Volume()
+				assert.NoError(t, err)
+				assert.Equal(t, 0.5, s, "volume is not as expected")
+			},
+			expectedDest: "volume",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Volume",
+		},
+		{
+			name:      "Volume error",
+			callError: errors.New("nope"),
+			givenName: "volume",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.Volume()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.Volume\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "volume",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Volume",
+		},
 	}
 
 	for _, tt := range tests {
@@ -421,6 +446,31 @@ func TestPlayer_SetProperties(t *testing.T) {
 			expectedPath:     "/org/mpris/MediaPlayer2",
 			expectedProperty: "org.mpris.MediaPlayer2.Player.Shuffle",
 			expectedValue:    dbus.MakeVariant(false),
+		},
+		{
+			name:      "Volume",
+			givenName: "volume",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetVolume(1)
+				assert.NoError(t, err)
+			},
+			expectedDest:     "volume",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.Volume",
+			expectedValue:    dbus.MakeVariant(float64(1)),
+		},
+		{
+			name:      "Volume error",
+			callError: errors.New("nope"),
+			givenName: "volume",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetVolume(0.5)
+				assert.Equal(t, "failed to set property \"org.mpris.MediaPlayer2.Player.Volume\": nope", fmt.Sprint(err))
+			},
+			expectedDest:     "volume",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.Volume",
+			expectedValue:    dbus.MakeVariant(0.5),
 		},
 	}
 
