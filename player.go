@@ -23,6 +23,7 @@ const (
 	playerShuffleProperty        = playerInterface + ".Shuffle"
 	playerMetadataProperty       = playerInterface + ".Metadata"
 	playerVolumeProperty         = playerInterface + ".Volume"
+	playerPositionProperty       = playerInterface + ".Position"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -275,6 +276,18 @@ func (p Player) Volume() (float64, error) {
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Volume
 func (p Player) SetVolume(volume float64) error {
 	return p.setProperty(playerVolumeProperty, volume)
+}
+
+//Position returns current track position in microseconds, between 0 and the 'mpris:length' metadata entry (see Metadata).
+//Note: If the media player allows it, the current playback position can be changed either the SetPosition method or the Seek method on this interface. If this is not the case, the CanSeek property is false, and setting this property has no effect and can raise an error.
+//If the playback progresses in a way that is inconsistent with the Rate property, the Seeked signal is emitted.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Position
+func (p Player) Position() (int64, error) {
+	v, err := p.getProperty(playerPositionProperty)
+	if err != nil {
+		return 0, err
+	}
+	return v.Value().(int64), nil
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {

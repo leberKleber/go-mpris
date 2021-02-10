@@ -330,6 +330,30 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedDest: "volume",
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.Volume",
+		}, {
+			name:        "Position",
+			callVariant: dbus.MakeVariant(int64(220342)),
+			givenName:   "position",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.Position()
+				assert.NoError(t, err)
+				assert.Equal(t, int64(220342), s, "position is not as expected")
+			},
+			expectedDest: "position",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Position",
+		},
+		{
+			name:      "Position error",
+			callError: errors.New("nope"),
+			givenName: "position",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.Position()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.Position\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "position",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Position",
 		},
 	}
 

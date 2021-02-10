@@ -40,7 +40,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] Shuffle
 - [X] Metadata
 - [X] Volume
-- [ ] Position
+- [X] Position
 - [ ] MinimumRate
 - [ ] MaximumRate
 - [ ] CanGoNext

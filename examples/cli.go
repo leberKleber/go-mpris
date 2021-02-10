@@ -184,6 +184,12 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 		if err != nil {
 			fmt.Printf("failed to set volume: %s\n", err)
 		}
+	case "position":
+		s, err := p.Position()
+		if err != nil {
+			fmt.Printf("failed to get position: %s\n", err)
+		}
+		fmt.Println(s)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -212,4 +218,5 @@ func printHelp() {
 	fmt.Println("- metadata")
 	fmt.Println("- volume")
 	fmt.Println("- set-volume")
+	fmt.Println("- position")
 }
