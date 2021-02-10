@@ -330,7 +330,8 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedDest: "volume",
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.Volume",
-		}, {
+		},
+		{
 			name:        "Position",
 			callVariant: dbus.MakeVariant(int64(220342)),
 			givenName:   "position",
@@ -354,6 +355,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedDest: "position",
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.Position",
+		},
+		{
+			name:        "MinimumRate",
+			callVariant: dbus.MakeVariant(0.000001),
+			givenName:   "minimum-rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.MinimumRate()
+				assert.NoError(t, err)
+				assert.Equal(t, 0.000001, s, "minimum-rate is not as expected")
+			},
+			expectedDest: "minimum-rate",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.MinimumRate",
+		},
+		{
+			name:      "MinimumRate error",
+			callError: errors.New("nope"),
+			givenName: "minimum-rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.MinimumRate()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.MinimumRate\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "minimum-rate",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.MinimumRate",
 		},
 	}
 

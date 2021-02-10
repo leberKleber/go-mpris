@@ -24,6 +24,7 @@ const (
 	playerMetadataProperty       = playerInterface + ".Metadata"
 	playerVolumeProperty         = playerInterface + ".Volume"
 	playerPositionProperty       = playerInterface + ".Position"
+	playerMinimumRateProperty    = playerInterface + ".MinimumRate"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -68,7 +69,7 @@ func NewPlayer(name string) (Player, error) {
 	}, nil
 }
 
-//NewPlayer returns a new Player with the given name and connection.
+//NewPlayerWithConnection returns a new Player with the given name and connection.
 func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
 	return Player{
 		name: name,
@@ -288,6 +289,17 @@ func (p Player) Position() (int64, error) {
 		return 0, err
 	}
 	return v.Value().(int64), nil
+}
+
+//MinimumRate returns the minimum value which the Rate property can take. Clients should not attempt to set the Rate property below this value.
+//Note that even if this value is 0.0 or negative, clients should not attempt to set the Rate property to 0.0.
+//This value should always be 1.0 or less.
+func (p Player) MinimumRate() (float64, error) {
+	v, err := p.getProperty(playerMinimumRateProperty)
+	if err != nil {
+		return 0, err
+	}
+	return v.Value().(float64), nil
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {
