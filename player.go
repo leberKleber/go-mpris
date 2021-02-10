@@ -20,6 +20,7 @@ const (
 	playerPlaybackStatusProperty = playerInterface + ".PlaybackStatus"
 	playerLoopStatusProperty     = playerInterface + ".LoopStatus"
 	playerRateProperty           = playerInterface + ".Rate"
+	playerShuffleProperty        = playerInterface + ".Shuffle"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -179,7 +180,7 @@ func (p Player) PlaybackStatus() (string, error) {
 //LoopStatus returns the current loop / repeat status
 //May be:
 //"None" if the playback will stop when there are no more tracks to play
-//"Track" if the current track will start again from the begining once it has finished playing
+//"Track" if the current track will start again from the beginning once it has finished playing
 //"Playlist" if the playback loops through a list of tracks
 //If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
 //https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:LoopStatus
@@ -194,7 +195,7 @@ func (p Player) LoopStatus() (string, error) {
 //SetLoopStatus sets the current loop / repeat status
 //May be:
 //"None" if the playback will stop when there are no more tracks to play
-//"Track" if the current track will start again from the begining once it has finished playing
+//"Track" if the current track will start again from the beginning once it has finished playing
 //"Playlist" if the playback loops through a list of tracks
 //If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:LoopStatus
@@ -215,13 +216,31 @@ func (p Player) Rate() (float64, error) {
 	return v.Value().(float64), nil
 }
 
-//Rate return the current playback rate.
+//SetRate sets the current playback rate.
 //The value must fall in the range described by MinimumRate and MaximumRate, and must not be 0.0. If playback is paused, the PlaybackStatus property should be used to indicate this. A value of 0.0 should not be set by the client. If it is, the media player should act as though Pause was called.
 //If the media player has no ability to play at speeds other than the normal playback rate, this must still be implemented, and must return 1.0. The MinimumRate and MaximumRate properties must also be set to 1.0.
 //Not all values may be accepted by the media player. It is left to media player implementations to decide how to deal with values they cannot use; they may either ignore them or pick a "best fit" value. Clients are recommended to only use sensible fractions or multiples of 1 (eg: 0.5, 0.25, 1.5, 2.0, etc).
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Rate
 func (p Player) SetRate(rate float64) error {
 	return p.setProperty(playerRateProperty, rate)
+}
+
+//Shuffle returns a value of false indicates that playback is progressing linearly through a playlist, while true means playback is progressing through a playlist in some other order.
+//If CanControl is false, attempting to set this property should have no effect and raise an error.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Shuffle
+func (p Player) Shuffle() (bool, error) {
+	v, err := p.getProperty(playerShuffleProperty)
+	if err != nil {
+		return false, err
+	}
+	return v.Value().(bool), nil
+}
+
+//Shuffle set a value of false indicates that playback is progressing linearly through a playlist, while true means playback is progressing through a playlist in some other order.
+//If CanControl is false, attempting to set this property should have no effect and raise an error.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Shuffle
+func (p Player) SetShuffle(shuffle bool) error {
+	return p.setProperty(playerShuffleProperty, shuffle)
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {

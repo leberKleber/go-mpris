@@ -112,7 +112,7 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 
 		err = p.SetLoopStatus(strings.Trim(status, "\n "))
 		if err != nil {
-			fmt.Printf("failed to get loop status: %s\n", err)
+			fmt.Printf("failed to set loop status: %s\n", err)
 		}
 	case "rate":
 		s, err := p.Rate()
@@ -133,7 +133,28 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 
 		err = p.SetRate(rate)
 		if err != nil {
-			fmt.Printf("failed to get loop status: %s\n", err)
+			fmt.Printf("failed to set rate: %s\n", err)
+		}
+	case "shuffle":
+		s, err := p.Shuffle()
+		if err != nil {
+			fmt.Printf("failed to get shuffle: %s\n", err)
+		}
+		fmt.Println(s)
+	case "set shuffle":
+		shuffleAsString, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read input: %w", err)
+		}
+
+		shuffle, err := strconv.ParseBool(strings.Trim(shuffleAsString, "\n "))
+		if err != nil {
+			fmt.Println("input must be a bool")
+		}
+
+		err = p.SetShuffle(shuffle)
+		if err != nil {
+			fmt.Printf("failed to set shuffle: %s\n", err)
 		}
 	default:
 		fmt.Println("Unknown command.")

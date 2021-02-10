@@ -250,6 +250,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.Rate",
 		},
+		{
+			name:        "Shuffle",
+			callVariant: dbus.MakeVariant(false),
+			givenName:   "shuffle",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.Shuffle()
+				assert.NoError(t, err)
+				assert.Equal(t, false, s, "shuffle is not as expected")
+			},
+			expectedDest: "shuffle",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Shuffle",
+		},
+		{
+			name:      "Shuffle error",
+			callError: errors.New("nope"),
+			givenName: "shuffle",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.Shuffle()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.Shuffle\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "shuffle",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Shuffle",
+		},
 	}
 
 	for _, tt := range tests {
@@ -340,6 +365,31 @@ func TestPlayer_SetProperties(t *testing.T) {
 			expectedPath:     "/org/mpris/MediaPlayer2",
 			expectedProperty: "org.mpris.MediaPlayer2.Player.Rate",
 			expectedValue:    dbus.MakeVariant(float64(2)),
+		},
+		{
+			name:      "Shuffle",
+			givenName: "shuffle",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetShuffle(true)
+				assert.NoError(t, err)
+			},
+			expectedDest:     "shuffle",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.Shuffle",
+			expectedValue:    dbus.MakeVariant(true),
+		},
+		{
+			name:      "Shuffle error",
+			callError: errors.New("nope"),
+			givenName: "shuffle",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetShuffle(false)
+				assert.Equal(t, "failed to set property \"org.mpris.MediaPlayer2.Player.Shuffle\": nope", fmt.Sprint(err))
+			},
+			expectedDest:     "shuffle",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.Shuffle",
+			expectedValue:    dbus.MakeVariant(false),
 		},
 	}
 
