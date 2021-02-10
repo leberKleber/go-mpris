@@ -26,6 +26,7 @@ const (
 	playerPositionProperty       = playerInterface + ".Position"
 	playerMinimumRateProperty    = playerInterface + ".MinimumRate"
 	playerMaximumRateProperty    = playerInterface + ".MaximumRate"
+	playerCanGoNextProperty      = playerInterface + ".CanGoNext"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -313,6 +314,17 @@ func (p Player) MaximumRate() (float64, error) {
 		return 0, err
 	}
 	return v.Value().(float64), nil
+}
+
+//CanGoNext returns true whether the client can call the Next method on this interface and expect the current track to change.
+//If it is unknown whether a call to Next will be successful (for example, when streaming tracks), this property should be set to true.
+//If CanControl is false, this property should also be false.
+func (p Player) CanGoNext() (bool, error) {
+	v, err := p.getProperty(playerCanGoNextProperty)
+	if err != nil {
+		return false, err
+	}
+	return v.Value().(bool), nil
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {
