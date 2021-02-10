@@ -226,6 +226,12 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			fmt.Printf("failed to get can-pause: %s\n", err)
 		}
 		fmt.Println(s)
+	case "can-seek":
+		s, err := p.CanSeek()
+		if err != nil {
+			fmt.Printf("failed to get can-seek: %s\n", err)
+		}
+		fmt.Println(s)
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -261,4 +267,5 @@ func printHelp() {
 	fmt.Println("- can-go-previous")
 	fmt.Println("- can-play")
 	fmt.Println("- can-pause")
+	fmt.Println("- can-seek")
 }

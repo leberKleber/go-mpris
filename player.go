@@ -30,6 +30,7 @@ const (
 	playerCanGoPreviousProperty  = playerInterface + ".CanGoPrevious"
 	playerCanPlayProperty        = playerInterface + ".CanPlay"
 	playerCanPauseProperty       = playerInterface + ".CanPause"
+	playerCanSeekProperty        = playerInterface + ".CanSeek"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -322,7 +323,7 @@ func (p Player) MaximumRate() (float64, error) {
 //CanGoNext returns true whether the client can call the Next method on this interface and expect the current track to change.
 //If it is unknown whether a call to Next will be successful (for example, when streaming tracks), this property should be set to true.
 //If CanControl is false, this property should also be false.
-////see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanGoNext
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanGoNext
 func (p Player) CanGoNext() (bool, error) {
 	v, err := p.getProperty(playerCanGoNextProperty)
 	if err != nil {
@@ -334,7 +335,7 @@ func (p Player) CanGoNext() (bool, error) {
 //CanGoPrevious returns true whether the client can call the Previous method on this interface and expect the current track to change.
 //If it is unknown whether a call to Previous will be successful (for example, when streaming tracks), this property should be set to true.
 //If CanControl is false, this property should also be false.
-////see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanGoPrevious
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanGoPrevious
 func (p Player) CanGoPrevious() (bool, error) {
 	v, err := p.getProperty(playerCanGoPreviousProperty)
 	if err != nil {
@@ -346,7 +347,7 @@ func (p Player) CanGoPrevious() (bool, error) {
 //CanPlay returns true whether playback can be started using Play or PlayPause.
 //Note that this is related to whether there is a "current track": the value should not depend on whether the track is currently paused or playing. In fact, if a track is currently playing (and CanControl is true), this should be true.
 //If CanControl is false, this property should also be false.
-////see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanPlay
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanPlay
 func (p Player) CanPlay() (bool, error) {
 	v, err := p.getProperty(playerCanPlayProperty)
 	if err != nil {
@@ -358,9 +359,20 @@ func (p Player) CanPlay() (bool, error) {
 //CanPause returns true whether playback can be paused using Pause or PlayPause.
 //Note that this is an intrinsic property of the current track: its value should not depend on whether the track is currently paused or playing. In fact, if playback is currently paused (and CanControl is true), this should be true.
 //If CanControl is false, this property should also be false.
-////see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanPause
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanPause
 func (p Player) CanPause() (bool, error) {
 	v, err := p.getProperty(playerCanPauseProperty)
+	if err != nil {
+		return false, err
+	}
+	return v.Value().(bool), nil
+}
+
+//CanSeek returns true whether the client can control the playback position using Seek and SetPosition. This may be different for different tracks.
+//If CanControl is false, this property should also be false.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanSeek
+func (p Player) CanSeek() (bool, error) {
+	v, err := p.getProperty(playerCanSeekProperty)
 	if err != nil {
 		return false, err
 	}
