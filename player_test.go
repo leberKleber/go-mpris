@@ -431,6 +431,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.CanGoNext",
 		},
+		{
+			name:        "CanGoPrevious",
+			callVariant: dbus.MakeVariant(true),
+			givenName:   "can-go-previous",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.CanGoPrevious()
+				assert.NoError(t, err)
+				assert.Equal(t, true, s, "can-go-previous is not as expected")
+			},
+			expectedDest: "can-go-previous",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.CanGoPrevious",
+		},
+		{
+			name:      "CanGoPrevious error",
+			callError: errors.New("nope"),
+			givenName: "can-go-previous",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.CanGoPrevious()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.CanGoPrevious\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "can-go-previous",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.CanGoPrevious",
+		},
 	}
 
 	for _, tt := range tests {

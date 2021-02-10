@@ -27,6 +27,7 @@ const (
 	playerMinimumRateProperty    = playerInterface + ".MinimumRate"
 	playerMaximumRateProperty    = playerInterface + ".MaximumRate"
 	playerCanGoNextProperty      = playerInterface + ".CanGoNext"
+	playerCanGoPreviousProperty  = playerInterface + ".CanGoPrevious"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -319,8 +320,21 @@ func (p Player) MaximumRate() (float64, error) {
 //CanGoNext returns true whether the client can call the Next method on this interface and expect the current track to change.
 //If it is unknown whether a call to Next will be successful (for example, when streaming tracks), this property should be set to true.
 //If CanControl is false, this property should also be false.
+////see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanGoNext
 func (p Player) CanGoNext() (bool, error) {
 	v, err := p.getProperty(playerCanGoNextProperty)
+	if err != nil {
+		return false, err
+	}
+	return v.Value().(bool), nil
+}
+
+//CanGoPrevious returns true whether the client can call the Previous method on this interface and expect the current track to change.
+//If it is unknown whether a call to Previous will be successful (for example, when streaming tracks), this property should be set to true.
+//If CanControl is false, this property should also be false.
+////see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanGoPrevious
+func (p Player) CanGoPrevious() (bool, error) {
+	v, err := p.getProperty(playerCanGoPreviousProperty)
 	if err != nil {
 		return false, err
 	}
