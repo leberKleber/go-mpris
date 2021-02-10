@@ -11,7 +11,7 @@ Example cli has been implemented.
 ```shell
 git clone git@github.com:leberKleber/go-mpris.git
 
-go build examples/cli-client.go
+go build examples/cli.go
 
 ./cli-client
 ```
@@ -36,7 +36,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 #### Properties
 - [X] PlaybackStatus
 - [X] LoopStatus
-- [ ] Rate
+- [X] Rate
 - [ ] Shuffle
 - [ ] Metadata
 - [ ] Volume

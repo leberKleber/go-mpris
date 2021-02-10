@@ -225,6 +225,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.LoopStatus",
 		},
+		{
+			name:        "Rate",
+			callVariant: dbus.MakeVariant(float64(3)),
+			givenName:   "rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.Rate()
+				assert.NoError(t, err)
+				assert.Equal(t, float64(3), s, "rate is not as expected")
+			},
+			expectedDest: "rate",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Rate",
+		},
+		{
+			name:      "Rate error",
+			callError: errors.New("nope"),
+			givenName: "rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.Rate()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.Rate\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "rate",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.Rate",
+		},
 	}
 
 	for _, tt := range tests {
@@ -290,6 +315,31 @@ func TestPlayer_SetProperties(t *testing.T) {
 			expectedPath:     "/org/mpris/MediaPlayer2",
 			expectedProperty: "org.mpris.MediaPlayer2.Player.LoopStatus",
 			expectedValue:    dbus.MakeVariant("Playlist"),
+		},
+		{
+			name:      "Rate",
+			givenName: "rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetRate(0.5)
+				assert.NoError(t, err)
+			},
+			expectedDest:     "rate",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.Rate",
+			expectedValue:    dbus.MakeVariant(0.5),
+		},
+		{
+			name:      "Rate error",
+			callError: errors.New("nope"),
+			givenName: "rate",
+			runAndValidate: func(t *testing.T, p *Player) {
+				err := p.SetRate(2)
+				assert.Equal(t, "failed to set property \"org.mpris.MediaPlayer2.Player.Rate\": nope", fmt.Sprint(err))
+			},
+			expectedDest:     "rate",
+			expectedPath:     "/org/mpris/MediaPlayer2",
+			expectedProperty: "org.mpris.MediaPlayer2.Player.Rate",
+			expectedValue:    dbus.MakeVariant(float64(2)),
 		},
 	}
 

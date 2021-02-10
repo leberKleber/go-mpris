@@ -19,6 +19,7 @@ const (
 	playerOpenURIMethod          = playerInterface + ".OpenURI"
 	playerPlaybackStatusProperty = playerInterface + ".PlaybackStatus"
 	playerLoopStatusProperty     = playerInterface + ".LoopStatus"
+	playerRateProperty           = playerInterface + ".Rate"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -166,12 +167,12 @@ func (p Player) OpenURI(uri string) {
 
 //PlaybackStatus returns the current playback status.
 //May be "Playing", "Paused" or "Stopped".
+//https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:PlaybackStatus
 func (p Player) PlaybackStatus() (string, error) {
-	v, err := p.connection.Object(p.name, playerObjectPath).GetProperty(playerPlaybackStatusProperty)
+	v, err := p.getProperty(playerPlaybackStatusProperty)
 	if err != nil {
-		return "", fmt.Errorf("failed to get property %q: %w", playerPlaybackStatusProperty, err)
+		return "", err
 	}
-
 	return v.Value().(string), nil
 }
 
@@ -181,12 +182,12 @@ func (p Player) PlaybackStatus() (string, error) {
 //"Track" if the current track will start again from the begining once it has finished playing
 //"Playlist" if the playback loops through a list of tracks
 //If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
+//https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:LoopStatus
 func (p Player) LoopStatus() (string, error) {
-	v, err := p.connection.Object(p.name, playerObjectPath).GetProperty(playerLoopStatusProperty)
+	v, err := p.getProperty(playerLoopStatusProperty)
 	if err != nil {
-		return "", fmt.Errorf("failed to get property %q: %w", playerLoopStatusProperty, err)
+		return "", err
 	}
-
 	return v.Value().(string), nil
 }
 
@@ -196,10 +197,46 @@ func (p Player) LoopStatus() (string, error) {
 //"Track" if the current track will start again from the begining once it has finished playing
 //"Playlist" if the playback loops through a list of tracks
 //If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
-func (p Player) SetLoopStatus(v string) error {
-	err := p.connection.Object(p.name, playerObjectPath).SetProperty(playerLoopStatusProperty, dbus.MakeVariant(v))
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:LoopStatus
+func (p Player) SetLoopStatus(status string) error {
+	return p.setProperty(playerLoopStatusProperty, status)
+}
+
+//Rate return the current playback rate.
+//The value must fall in the range described by MinimumRate and MaximumRate, and must not be 0.0. If playback is paused, the PlaybackStatus property should be used to indicate this. A value of 0.0 should not be set by the client. If it is, the media player should act as though Pause was called.
+//If the media player has no ability to play at speeds other than the normal playback rate, this must still be implemented, and must return 1.0. The MinimumRate and MaximumRate properties must also be set to 1.0.
+//Not all values may be accepted by the media player. It is left to media player implementations to decide how to deal with values they cannot use; they may either ignore them or pick a "best fit" value. Clients are recommended to only use sensible fractions or multiples of 1 (eg: 0.5, 0.25, 1.5, 2.0, etc).
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Rate
+func (p Player) Rate() (float64, error) {
+	v, err := p.getProperty(playerRateProperty)
 	if err != nil {
-		return fmt.Errorf("failed to set property %q: %w", playerLoopStatusProperty, err)
+		return 0, err
+	}
+	return v.Value().(float64), nil
+}
+
+//Rate return the current playback rate.
+//The value must fall in the range described by MinimumRate and MaximumRate, and must not be 0.0. If playback is paused, the PlaybackStatus property should be used to indicate this. A value of 0.0 should not be set by the client. If it is, the media player should act as though Pause was called.
+//If the media player has no ability to play at speeds other than the normal playback rate, this must still be implemented, and must return 1.0. The MinimumRate and MaximumRate properties must also be set to 1.0.
+//Not all values may be accepted by the media player. It is left to media player implementations to decide how to deal with values they cannot use; they may either ignore them or pick a "best fit" value. Clients are recommended to only use sensible fractions or multiples of 1 (eg: 0.5, 0.25, 1.5, 2.0, etc).
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Rate
+func (p Player) SetRate(rate float64) error {
+	return p.setProperty(playerRateProperty, rate)
+}
+
+func (p Player) getProperty(property string) (dbus.Variant, error) {
+	v, err := p.connection.Object(p.name, playerObjectPath).GetProperty(property)
+	if err != nil {
+		return dbus.Variant{}, fmt.Errorf("failed to get property %q: %w", property, err)
+	}
+
+	return v, nil
+}
+
+func (p Player) setProperty(property string, value interface{}) error {
+	err := p.connection.Object(p.name, playerObjectPath).SetProperty(property, dbus.MakeVariant(value))
+	if err != nil {
+		return fmt.Errorf("failed to set property %q: %w", property, err)
 	}
 
 	return nil

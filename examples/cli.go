@@ -114,6 +114,27 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 		if err != nil {
 			fmt.Printf("failed to get loop status: %s\n", err)
 		}
+	case "rate":
+		s, err := p.Rate()
+		if err != nil {
+			fmt.Printf("failed to get rate: %s\n", err)
+		}
+		fmt.Println(s)
+	case "set rate":
+		rateAsString, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read input: %w", err)
+		}
+
+		rate, err := strconv.ParseFloat(strings.Trim(rateAsString, "\n "), 10)
+		if err != nil {
+			fmt.Println("input must be a float64")
+		}
+
+		err = p.SetRate(rate)
+		if err != nil {
+			fmt.Printf("failed to get loop status: %s\n", err)
+		}
 	default:
 		fmt.Println("Unknown command.")
 		printHelp()
@@ -137,4 +158,5 @@ func printHelp() {
 	fmt.Println("- playback-status")
 	fmt.Println("- loop-status")
 	fmt.Println("- set-loop-status")
+	fmt.Println("- rate")
 }
