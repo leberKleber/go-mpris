@@ -31,6 +31,7 @@ const (
 	playerCanPlayProperty        = playerInterface + ".CanPlay"
 	playerCanPauseProperty       = playerInterface + ".CanPause"
 	playerCanSeekProperty        = playerInterface + ".CanSeek"
+	playerCanControlProperty     = playerInterface + ".CanControl"
 )
 
 var dbusSessionBus = dbus.SessionBus
@@ -246,7 +247,7 @@ func (p Player) Shuffle() (bool, error) {
 	return v.Value().(bool), nil
 }
 
-//Shuffle set a value of false indicates that playback is progressing linearly through a playlist, while true means playback is progressing through a playlist in some other order.
+//SetShuffle set a value of false indicates that playback is progressing linearly through a playlist, while true means playback is progressing through a playlist in some other order.
 //If CanControl is false, attempting to set this property should have no effect and raise an error.
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Shuffle
 func (p Player) SetShuffle(shuffle bool) error {
@@ -373,6 +374,18 @@ func (p Player) CanPause() (bool, error) {
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanSeek
 func (p Player) CanSeek() (bool, error) {
 	v, err := p.getProperty(playerCanSeekProperty)
+	if err != nil {
+		return false, err
+	}
+	return v.Value().(bool), nil
+}
+
+//CanControl is true whether the media player may be controlled over this interface.
+//This property is not expected to change, as it describes an intrinsic capability of the implementation.
+//If this is false, clients should assume that all properties on this interface are read-only (and will raise errors if writing to them is attempted), no methods are implemented and all other properties starting with "Can" are also false.
+//see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:CanControl
+func (p Player) CanControl() (bool, error) {
+	v, err := p.getProperty(playerCanControlProperty)
 	if err != nil {
 		return false, err
 	}

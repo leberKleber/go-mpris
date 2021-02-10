@@ -48,7 +48,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 - [X] CanPlay
 - [X] CanPause
 - [X] CanSeek
-- [ ] CanControl
+- [X] CanControl
 
 #### Signals
 - [ ] Seeked
