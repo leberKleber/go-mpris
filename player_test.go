@@ -481,6 +481,31 @@ func TestPlayer_GetProperties(t *testing.T) {
 			expectedPath: "/org/mpris/MediaPlayer2",
 			expectedKey:  "org.mpris.MediaPlayer2.Player.CanPlay",
 		},
+		{
+			name:        "CanPause",
+			callVariant: dbus.MakeVariant(true),
+			givenName:   "can-pause",
+			runAndValidate: func(t *testing.T, p *Player) {
+				s, err := p.CanPause()
+				assert.NoError(t, err)
+				assert.Equal(t, true, s, "can-pause is not as expected")
+			},
+			expectedDest: "can-pause",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.CanPause",
+		},
+		{
+			name:      "CanPause error",
+			callError: errors.New("nope"),
+			givenName: "can-pause",
+			runAndValidate: func(t *testing.T, p *Player) {
+				_, err := p.CanPause()
+				assert.Equal(t, "failed to get property \"org.mpris.MediaPlayer2.Player.CanPause\": nope", fmt.Sprint(err))
+			},
+			expectedDest: "can-pause",
+			expectedPath: "/org/mpris/MediaPlayer2",
+			expectedKey:  "org.mpris.MediaPlayer2.Player.CanPause",
+		},
 	}
 
 	for _, tt := range tests {
