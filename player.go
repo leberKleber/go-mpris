@@ -1,7 +1,6 @@
 package mpris
 
 import (
-	"context"
 	"fmt"
 	"github.com/godbus/dbus/v5"
 )

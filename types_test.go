@@ -367,20 +367,20 @@ func TestMetadata_XESAMContentCreated(t *testing.T) {
 	var err error
 
 	//happycase
-	expectedContentCreated = time.Date(2007, 4, 29, 13, 56, 0, 0, time.FixedZone("", 0))
+	expectedContentCreated = time.Date(2007, 4, 29, 13, 56, 0, 0, time.UTC)
 	expectedErrorText = "<nil>"
 	contentCreated, err = Metadata{
 		"xesam:contentCreated": dbus.MakeVariant("2007-04-29T13:56+00:00"),
 	}.XESAMContentCreated()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedContentCreated.String(), contentCreated.String(), "unexpected contentCreated")
+	assert.True(t, expectedContentCreated.Equal(contentCreated), "unexpected contentCreated", expectedContentCreated, contentCreated)
 
 	//not present
 	expectedContentCreated = time.Time{}
 	expectedErrorText = "<nil>"
 	contentCreated, err = Metadata{}.XESAMContentCreated()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedContentCreated, contentCreated, "unexpected contentCreated")
+	assert.True(t, expectedContentCreated.Equal(contentCreated), "unexpected contentCreated", expectedContentCreated, contentCreated)
 
 	//unexpected type
 	expectedContentCreated = time.Time{}
@@ -389,7 +389,7 @@ func TestMetadata_XESAMContentCreated(t *testing.T) {
 		"xesam:contentCreated": dbus.MakeVariant(42),
 	}.XESAMContentCreated()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedContentCreated, contentCreated, "unexpected contentCreated")
+	assert.True(t, expectedContentCreated.Equal(contentCreated), "unexpected contentCreated", expectedContentCreated, contentCreated)
 
 	//unexpected date format
 	expectedContentCreated = time.Time{}
@@ -398,7 +398,7 @@ func TestMetadata_XESAMContentCreated(t *testing.T) {
 		"xesam:contentCreated": dbus.MakeVariant("not a date-time"),
 	}.XESAMContentCreated()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedContentCreated, contentCreated, "unexpected contentCreated")
+	assert.True(t, expectedContentCreated.Equal(contentCreated), "unexpected contentCreated", expectedContentCreated, contentCreated)
 }
 
 func TestMetadata_XESAMDiscNumber(t *testing.T) {
@@ -446,14 +446,14 @@ func TestMetadata_XESAMFirstUsed(t *testing.T) {
 		"xesam:firstUsed": dbus.MakeVariant("2007-04-29T13:56+00:00"),
 	}.XESAMFirstUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedFirstUsed.String(), firstUsed.String(), "unexpected firstUsed")
+	assert.True(t, expectedFirstUsed.Equal(firstUsed), "unexpected firstUsed", expectedFirstUsed, firstUsed)
 
 	//not present
 	expectedFirstUsed = time.Time{}
 	expectedErrorText = "<nil>"
 	firstUsed, err = Metadata{}.XESAMFirstUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedFirstUsed, firstUsed, "unexpected firstUsed")
+	assert.True(t, expectedFirstUsed.Equal(firstUsed), "unexpected firstUsed", expectedFirstUsed, firstUsed)
 
 	//unexpected type
 	expectedFirstUsed = time.Time{}
@@ -462,7 +462,7 @@ func TestMetadata_XESAMFirstUsed(t *testing.T) {
 		"xesam:firstUsed": dbus.MakeVariant(42),
 	}.XESAMFirstUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedFirstUsed, firstUsed, "unexpected firstUsed")
+	assert.True(t, expectedFirstUsed.Equal(firstUsed), "unexpected firstUsed", expectedFirstUsed, firstUsed)
 
 	//unexpected date format
 	expectedFirstUsed = time.Time{}
@@ -471,7 +471,7 @@ func TestMetadata_XESAMFirstUsed(t *testing.T) {
 		"xesam:firstUsed": dbus.MakeVariant("not a date-time"),
 	}.XESAMFirstUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedFirstUsed, firstUsed, "unexpected firstUsed")
+	assert.True(t, expectedFirstUsed.Equal(firstUsed), "unexpected firstUsed", expectedFirstUsed, firstUsed)
 }
 
 func TestMetadata_XESAMGenre(t *testing.T) {
@@ -519,14 +519,14 @@ func TestMetadata_XESAMLastUsed(t *testing.T) {
 		"xesam:lastUsed": dbus.MakeVariant("2007-04-29T13:56+00:00"),
 	}.XESAMLastUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedLastUsed.String(), lastUsed.String(), "unexpected lastUsed")
+	assert.True(t, expectedLastUsed.Equal(lastUsed), "unexpected lastUsed", expectedLastUsed, lastUsed)
 
 	//not present
 	expectedLastUsed = time.Time{}
 	expectedErrorText = "<nil>"
 	lastUsed, err = Metadata{}.XESAMLastUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedLastUsed, lastUsed, "unexpected lastUsed")
+	assert.True(t, expectedLastUsed.Equal(lastUsed), "unexpected lastUsed", expectedLastUsed, lastUsed)
 
 	//unexpected type
 	expectedLastUsed = time.Time{}
@@ -535,7 +535,7 @@ func TestMetadata_XESAMLastUsed(t *testing.T) {
 		"xesam:lastUsed": dbus.MakeVariant(42),
 	}.XESAMLastUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedLastUsed, lastUsed, "unexpected lastUsed")
+	assert.True(t, expectedLastUsed.Equal(lastUsed), "unexpected lastUsed", expectedLastUsed, lastUsed)
 
 	//unexpected date format
 	expectedLastUsed = time.Time{}
@@ -544,7 +544,7 @@ func TestMetadata_XESAMLastUsed(t *testing.T) {
 		"xesam:lastUsed": dbus.MakeVariant("not a date-time"),
 	}.XESAMLastUsed()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedLastUsed, lastUsed, "unexpected lastUsed")
+	assert.True(t, expectedLastUsed.Equal(lastUsed), "unexpected lastUsed", expectedLastUsed, lastUsed)
 }
 
 func TestMetadata_XESAMLyricist(t *testing.T) {

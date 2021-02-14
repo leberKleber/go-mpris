@@ -110,7 +110,7 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			return fmt.Errorf("failed to read input: %w", err)
 		}
 
-		err = p.SetLoopStatus(strings.Trim(status, "\n "))
+		err = p.SetLoopStatus(mpris.LoopStatus(strings.Trim(status, "\n ")))
 		if err != nil {
 			fmt.Printf("failed to set loop status: %s\n", err)
 		}

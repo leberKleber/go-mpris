@@ -12,6 +12,14 @@ func (w dbusConnWrapper) Object(dest string, path dbus.ObjectPath) dbusBusObject
 	}
 }
 
+func (w dbusConnWrapper) AddMatchSignal(options ...dbus.MatchOption) error {
+	return w.conn.AddMatchSignal(options...)
+}
+
+func (w dbusConnWrapper) Signal(ch chan<- *dbus.Signal) {
+	w.conn.Signal(ch)
+}
+
 type dbusBusObjectWrapper struct {
 	obj dbus.BusObject
 }
