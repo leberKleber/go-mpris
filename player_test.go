@@ -182,7 +182,7 @@ func TestPlayer_GetProperties(t *testing.T) {
 			runAndValidate: func(t *testing.T, p *Player) {
 				s, err := p.PlaybackStatus()
 				assert.NoError(t, err)
-				assert.Equal(t, "Paused", s, "status is not as expected")
+				assert.Equal(t, PlaybackStatusPaused, s, "status is not as expected")
 			},
 			expectedDest: "playback-status",
 			expectedPath: "/org/mpris/MediaPlayer2",
@@ -207,7 +207,7 @@ func TestPlayer_GetProperties(t *testing.T) {
 			runAndValidate: func(t *testing.T, p *Player) {
 				s, err := p.LoopStatus()
 				assert.NoError(t, err)
-				assert.Equal(t, "Track", s, "status is not as expected")
+				assert.Equal(t, LoopStatusTrack, s, "status is not as expected")
 			},
 			expectedDest: "loop-status",
 			expectedPath: "/org/mpris/MediaPlayer2",
@@ -285,7 +285,7 @@ func TestPlayer_GetProperties(t *testing.T) {
 			runAndValidate: func(t *testing.T, p *Player) {
 				s, err := p.Metadata()
 				assert.NoError(t, err)
-				assert.Equal(t, map[string]dbus.Variant{
+				assert.Equal(t, Metadata{
 					"myKey1": dbus.MakeVariant(true),
 					"myKey2": dbus.MakeVariant("key2"),
 				}, s, "metadata is not as expected")
@@ -601,7 +601,7 @@ func TestPlayer_SetProperties(t *testing.T) {
 			name:      "LoopStatus",
 			givenName: "loop-status",
 			runAndValidate: func(t *testing.T, p *Player) {
-				err := p.SetLoopStatus("Track")
+				err := p.SetLoopStatus(LoopStatusTrack)
 				assert.NoError(t, err)
 			},
 			expectedDest:     "loop-status",
@@ -614,7 +614,7 @@ func TestPlayer_SetProperties(t *testing.T) {
 			callError: errors.New("nope"),
 			givenName: "loop-status",
 			runAndValidate: func(t *testing.T, p *Player) {
-				err := p.SetLoopStatus("Playlist")
+				err := p.SetLoopStatus(LoopStatusPlaylist)
 				assert.Equal(t, "failed to set property \"org.mpris.MediaPlayer2.Player.LoopStatus\": nope", fmt.Sprint(err))
 			},
 			expectedDest:     "loop-status",

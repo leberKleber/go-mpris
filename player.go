@@ -1,6 +1,7 @@
 package mpris
 
 import (
+	"context"
 	"fmt"
 	"github.com/godbus/dbus/v5"
 )
@@ -39,6 +40,8 @@ var dbusSessionBus = dbus.SessionBus
 //go:generate moq -out dbus-conn_moq_test.go . dbusConn
 type dbusConn interface {
 	Object(dest string, path dbus.ObjectPath) dbusBusObject
+	AddMatchSignal(options ...dbus.MatchOption) error
+	Signal(ch chan<- *dbus.Signal)
 }
 
 //go:generate moq -out dbus-bus-object_moq_test.go . dbusBusObject
@@ -178,40 +181,40 @@ func (p Player) OpenURI(uri string) {
 }
 
 //PlaybackStatus returns the current playback status.
-//May be "Playing", "Paused" or "Stopped".
+//May be "Playing" as PlaybackStatusPlaying, "Paused" as PlaybackStatusPaused or "Stopped" as PlaybackStatusStopped.
 //https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:PlaybackStatus
-func (p Player) PlaybackStatus() (string, error) {
+func (p Player) PlaybackStatus() (PlaybackStatus, error) {
 	v, err := p.getProperty(playerPlaybackStatusProperty)
 	if err != nil {
 		return "", err
 	}
-	return v.Value().(string), nil
+	return PlaybackStatus(v.Value().(string)), nil
 }
 
 //LoopStatus returns the current loop / repeat status
 //May be:
-//"None" if the playback will stop when there are no more tracks to play
-//"Track" if the current track will start again from the beginning once it has finished playing
-//"Playlist" if the playback loops through a list of tracks
+//"None" as LoopStatusNone if the playback will stop when there are no more tracks to play
+//"Track" as LoopStatusTrack if the current track will start again from the beginning once it has finished playing
+//"Playlist" as LoopStatusPlaylist if the playback loops through a list of tracks
 //If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
 //https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:LoopStatus
-func (p Player) LoopStatus() (string, error) {
+func (p Player) LoopStatus() (LoopStatus, error) {
 	v, err := p.getProperty(playerLoopStatusProperty)
 	if err != nil {
 		return "", err
 	}
-	return v.Value().(string), nil
+	return LoopStatus(v.Value().(string)), nil
 }
 
 //SetLoopStatus sets the current loop / repeat status
 //May be:
-//"None" if the playback will stop when there are no more tracks to play
-//"Track" if the current track will start again from the beginning once it has finished playing
-//"Playlist" if the playback loops through a list of tracks
+//"None" as LoopStatusNone if the playback will stop when there are no more tracks to play
+//"Track" as LoopStatusTrack if the current track will start again from the beginning once it has finished playing
+//"Playlist" as LoopStatusPlaylist if the playback loops through a list of tracks
 //If CanControl is false, attempting to set this property (SetLoopStatus) should have no effect and raise an error.
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:LoopStatus
-func (p Player) SetLoopStatus(status string) error {
-	return p.setProperty(playerLoopStatusProperty, status)
+func (p Player) SetLoopStatus(status LoopStatus) error {
+	return p.setProperty(playerLoopStatusProperty, string(status))
 }
 
 //Rate return the current playback rate.
@@ -258,7 +261,7 @@ func (p Player) SetShuffle(shuffle bool) error {
 //If there is a current track, this must have a "mpris:trackid" entry (of D-Bus type "o") at the very least, which contains a D-Bus path that uniquely identifies this track.
 //See the type documentation for more details.
 //see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Property:Metadata
-func (p Player) Metadata() (map[string]dbus.Variant, error) {
+func (p Player) Metadata() (Metadata, error) {
 	v, err := p.getProperty(playerMetadataProperty)
 	if err != nil {
 		return nil, err
