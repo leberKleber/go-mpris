@@ -14,25 +14,25 @@ var _ dbusBusObject = &dbusBusObjectMock{}
 
 // dbusBusObjectMock is a mock implementation of dbusBusObject.
 //
-// 	func TestSomethingThatUsesdbusBusObject(t *testing.T) {
+//	func TestSomethingThatUsesdbusBusObject(t *testing.T) {
 //
-// 		// make and configure a mocked dbusBusObject
-// 		mockeddbusBusObject := &dbusBusObjectMock{
-// 			CallFunc: func(method string, flags dbus.Flags, args ...interface{}) dbusCall {
-// 				panic("mock out the Call method")
-// 			},
-// 			GetPropertyFunc: func(p string) (dbus.Variant, error) {
-// 				panic("mock out the GetProperty method")
-// 			},
-// 			SetPropertyFunc: func(p string, v interface{}) error {
-// 				panic("mock out the SetProperty method")
-// 			},
-// 		}
+//		// make and configure a mocked dbusBusObject
+//		mockeddbusBusObject := &dbusBusObjectMock{
+//			CallFunc: func(method string, flags dbus.Flags, args ...interface{}) dbusCall {
+//				panic("mock out the Call method")
+//			},
+//			GetPropertyFunc: func(p string) (dbus.Variant, error) {
+//				panic("mock out the GetProperty method")
+//			},
+//			SetPropertyFunc: func(p string, v interface{}) error {
+//				panic("mock out the SetProperty method")
+//			},
+//		}
 //
-// 		// use mockeddbusBusObject in code that requires dbusBusObject
-// 		// and then make assertions.
+//		// use mockeddbusBusObject in code that requires dbusBusObject
+//		// and then make assertions.
 //
-// 	}
+//	}
 type dbusBusObjectMock struct {
 	// CallFunc mocks the Call method.
 	CallFunc func(method string, flags dbus.Flags, args ...interface{}) dbusCall
@@ -94,7 +94,8 @@ func (mock *dbusBusObjectMock) Call(method string, flags dbus.Flags, args ...int
 
 // CallCalls gets all the calls that were made to Call.
 // Check the length with:
-//     len(mockeddbusBusObject.CallCalls())
+//
+//	len(mockeddbusBusObject.CallCalls())
 func (mock *dbusBusObjectMock) CallCalls() []struct {
 	Method string
 	Flags  dbus.Flags
@@ -129,7 +130,8 @@ func (mock *dbusBusObjectMock) GetProperty(p string) (dbus.Variant, error) {
 
 // GetPropertyCalls gets all the calls that were made to GetProperty.
 // Check the length with:
-//     len(mockeddbusBusObject.GetPropertyCalls())
+//
+//	len(mockeddbusBusObject.GetPropertyCalls())
 func (mock *dbusBusObjectMock) GetPropertyCalls() []struct {
 	P string
 } {
@@ -162,7 +164,8 @@ func (mock *dbusBusObjectMock) SetProperty(p string, v interface{}) error {
 
 // SetPropertyCalls gets all the calls that were made to SetProperty.
 // Check the length with:
-//     len(mockeddbusBusObject.SetPropertyCalls())
+//
+//	len(mockeddbusBusObject.SetPropertyCalls())
 func (mock *dbusBusObjectMock) SetPropertyCalls() []struct {
 	P string
 	V interface{}

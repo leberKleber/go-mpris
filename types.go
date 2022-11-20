@@ -3,31 +3,36 @@ package mpris
 import (
 	"errors"
 	"fmt"
-	"github.com/godbus/dbus/v5"
 	"time"
+
+	"github.com/godbus/dbus/v5"
 )
 
 const timeFormat = "2006-01-02T15:04-07:00"
 
-var TypeNotParsable = errors.New("the given type is not as expected")
+var ErrTypeNotParsable = errors.New("the given type is not as expected")
 
 type PlaybackStatus string
 
-const PlaybackStatusPlaying PlaybackStatus = "Playing"
-const PlaybackStatusPaused PlaybackStatus = "Paused"
-const PlaybackStatusStopped PlaybackStatus = "Stopped"
+const (
+	PlaybackStatusPlaying PlaybackStatus = "Playing"
+	PlaybackStatusPaused  PlaybackStatus = "Paused"
+	PlaybackStatusStopped PlaybackStatus = "Stopped"
+)
 
 type LoopStatus string
 
-const LoopStatusNone LoopStatus = "None"
-const LoopStatusTrack LoopStatus = "Track"
-const LoopStatusPlaylist LoopStatus = "Playlist"
+const (
+	LoopStatusNone     LoopStatus = "None"
+	LoopStatusTrack    LoopStatus = "Track"
+	LoopStatusPlaylist LoopStatus = "Playlist"
+)
 
-//Metadata represents the mpris-metadata
-//see: https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/
+// Metadata represents the mpris-metadata
+// see: https://www.freedesktop.org/wiki/Specifications/mpris-spec/metadata/
 type Metadata map[string]dbus.Variant
 
-//MPRISTrackID returns a unique identity for this track within the context of an MPRIS object (eg: tracklist).
+// MPRISTrackID returns a unique identity for this track within the context of an MPRIS object (eg: tracklist).
 func (md Metadata) MPRISTrackID() (dbus.ObjectPath, error) {
 	vt := md["mpris:trackid"].Value()
 	if vt == nil {
@@ -36,13 +41,13 @@ func (md Metadata) MPRISTrackID() (dbus.ObjectPath, error) {
 
 	v, ok := vt.(dbus.ObjectPath)
 	if !ok {
-		return "", fmt.Errorf("%T could not be parsed to dbus.ObjectPath: %w", vt, TypeNotParsable)
+		return "", fmt.Errorf("%T could not be parsed to dbus.ObjectPath: %w", vt, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//MPRISLength returns the duration of the track in microseconds.
+// MPRISLength returns the duration of the track in microseconds.
 func (md Metadata) MPRISLength() (int64, error) {
 	vl := md["mpris:length"].Value()
 	if vl == nil {
@@ -51,14 +56,14 @@ func (md Metadata) MPRISLength() (int64, error) {
 
 	v, ok := vl.(int64)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to int64: %w", vl, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to int64: %w", vl, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//MPRISArtURL returns the location of an image representing the track or album. Clients should not assume this will
-//continue to exist when the media player stops giving out the URL.
+// MPRISArtURL returns the location of an image representing the track or album. Clients should not assume this will
+// continue to exist when the media player stops giving out the URL.
 func (md Metadata) MPRISArtURL() (string, error) {
 	va := md["mpris:artUrl"].Value()
 	if va == nil {
@@ -67,13 +72,13 @@ func (md Metadata) MPRISArtURL() (string, error) {
 
 	v, ok := va.(string)
 	if !ok {
-		return "", fmt.Errorf("%T could not be parsed to string: %w", va, TypeNotParsable)
+		return "", fmt.Errorf("%T could not be parsed to string: %w", va, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMAlbum returns the album name.
+// XESAMAlbum returns the album name.
 func (md Metadata) XESAMAlbum() (string, error) {
 	va := md["xesam:album"].Value()
 	if va == nil {
@@ -82,13 +87,13 @@ func (md Metadata) XESAMAlbum() (string, error) {
 
 	v, ok := va.(string)
 	if !ok {
-		return "", fmt.Errorf("%T could not be parsed to string: %w", va, TypeNotParsable)
+		return "", fmt.Errorf("%T could not be parsed to string: %w", va, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMAlbumArtist returns the album artist(s)
+// XESAMAlbumArtist returns the album artist(s)
 func (md Metadata) XESAMAlbumArtist() ([]string, error) {
 	va := md["xesam:albumArtist"].Value()
 	if va == nil {
@@ -97,13 +102,13 @@ func (md Metadata) XESAMAlbumArtist() ([]string, error) {
 
 	v, ok := va.([]string)
 	if !ok {
-		return nil, fmt.Errorf("%T could not be parsed to []string: %w", va, TypeNotParsable)
+		return nil, fmt.Errorf("%T could not be parsed to []string: %w", va, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMArtist returns the track artist(s).
+// XESAMArtist returns the track artist(s).
 func (md Metadata) XESAMArtist() ([]string, error) {
 	va := md["xesam:artist"].Value()
 	if va == nil {
@@ -112,13 +117,13 @@ func (md Metadata) XESAMArtist() ([]string, error) {
 
 	v, ok := va.([]string)
 	if !ok {
-		return nil, fmt.Errorf("%T could not be parsed to []string: %w", va, TypeNotParsable)
+		return nil, fmt.Errorf("%T could not be parsed to []string: %w", va, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMAsText returns the track lyrics.
+// XESAMAsText returns the track lyrics.
 func (md Metadata) XESAMAsText() (string, error) {
 	vt := md["xesam:asText"].Value()
 	if vt == nil {
@@ -127,13 +132,13 @@ func (md Metadata) XESAMAsText() (string, error) {
 
 	v, ok := vt.(string)
 	if !ok {
-		return "", fmt.Errorf("%T could not be parsed to string: %w", vt, TypeNotParsable)
+		return "", fmt.Errorf("%T could not be parsed to string: %w", vt, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMAudioBPM returns the speed of the music, in beats per minute.
+// XESAMAudioBPM returns the speed of the music, in beats per minute.
 func (md Metadata) XESAMAudioBPM() (int, error) {
 	va := md["xesam:audioBPM"].Value()
 	if va == nil {
@@ -142,14 +147,14 @@ func (md Metadata) XESAMAudioBPM() (int, error) {
 
 	v, ok := va.(int)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to int: %w", va, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to int: %w", va, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMAutoRating returns an automatically-generated rating, based on things such as how often it has been played.
-//This should be in the range 0.0 to 1.0.
+// XESAMAutoRating returns an automatically-generated rating, based on things such as how often it has been played.
+// This should be in the range 0.0 to 1.0.
 func (md Metadata) XESAMAutoRating() (float64, error) {
 	va := md["xesam:autoRating"].Value()
 	if va == nil {
@@ -158,12 +163,12 @@ func (md Metadata) XESAMAutoRating() (float64, error) {
 
 	v, ok := va.(float64)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to float64: %w", va, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to float64: %w", va, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMComment returns an (list of) freeform comment(s).
+// XESAMComment returns a (list of) freeform comment(s).
 func (md Metadata) XESAMComment() ([]string, error) {
 	vc := md["xesam:comment"].Value()
 	if vc == nil {
@@ -172,12 +177,12 @@ func (md Metadata) XESAMComment() ([]string, error) {
 
 	v, ok := vc.([]string)
 	if !ok {
-		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vc, TypeNotParsable)
+		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vc, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMComposer returns the composer(s) of the track.
+// XESAMComposer returns the composer(s) of the track.
 func (md Metadata) XESAMComposer() ([]string, error) {
 	vc := md["xesam:composer"].Value()
 	if vc == nil {
@@ -186,12 +191,12 @@ func (md Metadata) XESAMComposer() ([]string, error) {
 
 	v, ok := vc.([]string)
 	if !ok {
-		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vc, TypeNotParsable)
+		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vc, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMContentCreated returns when the track was created. Usually only the year component will be useful.
+// XESAMContentCreated returns when the track was created. Usually only the year component will be useful.
 func (md Metadata) XESAMContentCreated() (time.Time, error) {
 	vc := md["xesam:contentCreated"].Value()
 	if vc == nil {
@@ -200,18 +205,18 @@ func (md Metadata) XESAMContentCreated() (time.Time, error) {
 
 	vs, ok := vc.(string)
 	if !ok {
-		return time.Time{}, fmt.Errorf("%T could not be parsed to string: %w", vc, TypeNotParsable)
+		return time.Time{}, fmt.Errorf("%T could not be parsed to string: %w", vc, ErrTypeNotParsable)
 	}
 
 	t, err := time.Parse(timeFormat, vs)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("cound not parse time: %s: %w", err, TypeNotParsable)
+		return time.Time{}, fmt.Errorf("cound not parse time: %s: %w", err, ErrTypeNotParsable)
 	}
 
 	return t, nil
 }
 
-//XESAMDiscNumber returns the disc number on the album that this track is from.
+// XESAMDiscNumber returns the disc number on the album that this track is from.
 func (md Metadata) XESAMDiscNumber() (int, error) {
 	vn := md["xesam:discNumber"].Value()
 	if vn == nil {
@@ -220,12 +225,12 @@ func (md Metadata) XESAMDiscNumber() (int, error) {
 
 	v, ok := vn.(int)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to int: %w", vn, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to int: %w", vn, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMFirstUsed returns when the track was first played.
+// XESAMFirstUsed returns when the track was first played.
 func (md Metadata) XESAMFirstUsed() (time.Time, error) {
 	vu := md["xesam:firstUsed"].Value()
 	if vu == nil {
@@ -234,18 +239,18 @@ func (md Metadata) XESAMFirstUsed() (time.Time, error) {
 
 	vs, ok := vu.(string)
 	if !ok {
-		return time.Time{}, fmt.Errorf("%T could not be parsed to string: %w", vu, TypeNotParsable)
+		return time.Time{}, fmt.Errorf("%T could not be parsed to string: %w", vu, ErrTypeNotParsable)
 	}
 
 	t, err := time.Parse(timeFormat, vs)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("cound not parse time: %s: %w", err, TypeNotParsable)
+		return time.Time{}, fmt.Errorf("cound not parse time: %s: %w", err, ErrTypeNotParsable)
 	}
 
 	return t, nil
 }
 
-//XESAMGenre returns the genre(s) of the track.
+// XESAMGenre returns the genre(s) of the track.
 func (md Metadata) XESAMGenre() ([]string, error) {
 	vg := md["xesam:genre"].Value()
 	if vg == nil {
@@ -254,12 +259,12 @@ func (md Metadata) XESAMGenre() ([]string, error) {
 
 	v, ok := vg.([]string)
 	if !ok {
-		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vg, TypeNotParsable)
+		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vg, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMLastUsed returns when the track was last played.
+// XESAMLastUsed returns when the track was last played.
 func (md Metadata) XESAMLastUsed() (time.Time, error) {
 	vu := md["xesam:lastUsed"].Value()
 	if vu == nil {
@@ -268,18 +273,18 @@ func (md Metadata) XESAMLastUsed() (time.Time, error) {
 
 	vs, ok := vu.(string)
 	if !ok {
-		return time.Time{}, fmt.Errorf("%T could not be parsed to string: %w", vu, TypeNotParsable)
+		return time.Time{}, fmt.Errorf("%T could not be parsed to string: %w", vu, ErrTypeNotParsable)
 	}
 
 	t, err := time.Parse(timeFormat, vs)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("cound not parse time: %s: %w", err, TypeNotParsable)
+		return time.Time{}, fmt.Errorf("cound not parse time: %s: %w", err, ErrTypeNotParsable)
 	}
 
 	return t, nil
 }
 
-//XESAMLyricist returns the lyricist(s) of the track.
+// XESAMLyricist returns the lyricist(s) of the track.
 func (md Metadata) XESAMLyricist() ([]string, error) {
 	vl := md["xesam:lyricist"].Value()
 	if vl == nil {
@@ -288,12 +293,12 @@ func (md Metadata) XESAMLyricist() ([]string, error) {
 
 	v, ok := vl.([]string)
 	if !ok {
-		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vl, TypeNotParsable)
+		return nil, fmt.Errorf("%T could not be parsed to []string: %w", vl, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMTitle returns the track title.
+// XESAMTitle returns the track title.
 func (md Metadata) XESAMTitle() (string, error) {
 	vt := md["xesam:title"].Value()
 	if vt == nil {
@@ -302,13 +307,13 @@ func (md Metadata) XESAMTitle() (string, error) {
 
 	v, ok := vt.(string)
 	if !ok {
-		return "", fmt.Errorf("%T could not be parsed to string: %w", vt, TypeNotParsable)
+		return "", fmt.Errorf("%T could not be parsed to string: %w", vt, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMTrackNumber returns the track number on the album disc.
+// XESAMTrackNumber returns the track number on the album disc.
 func (md Metadata) XESAMTrackNumber() (int, error) {
 	vn := md["xesam:trackNumber"].Value()
 	if vn == nil {
@@ -317,12 +322,12 @@ func (md Metadata) XESAMTrackNumber() (int, error) {
 
 	v, ok := vn.(int)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to int: %w", vn, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to int: %w", vn, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMURL returns the location of the media file.
+// XESAMURL returns the location of the media file.
 func (md Metadata) XESAMURL() (string, error) {
 	vu := md["xesam:url"].Value()
 	if vu == nil {
@@ -331,13 +336,13 @@ func (md Metadata) XESAMURL() (string, error) {
 
 	v, ok := vu.(string)
 	if !ok {
-		return "", fmt.Errorf("%T could not be parsed to string: %w", vu, TypeNotParsable)
+		return "", fmt.Errorf("%T could not be parsed to string: %w", vu, ErrTypeNotParsable)
 	}
 
 	return v, nil
 }
 
-//XESAMUseCount returns hte number of times the track has been played.
+// XESAMUseCount returns hte number of times the track has been played.
 func (md Metadata) XESAMUseCount() (int, error) {
 	vc := md["xesam:useCount"].Value()
 	if vc == nil {
@@ -346,12 +351,12 @@ func (md Metadata) XESAMUseCount() (int, error) {
 
 	v, ok := vc.(int)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to int: %w", vc, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to int: %w", vc, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//XESAMUserRating returns a user-specified rating. This should be in the range 0.0 to 1.0.
+// XESAMUserRating returns a user-specified rating. This should be in the range 0.0 to 1.0.
 func (md Metadata) XESAMUserRating() (float64, error) {
 	vr := md["xesam:userRating"].Value()
 	if vr == nil {
@@ -360,12 +365,12 @@ func (md Metadata) XESAMUserRating() (float64, error) {
 
 	v, ok := vr.(float64)
 	if !ok {
-		return 0, fmt.Errorf("%T could not be parsed to float64: %w", vr, TypeNotParsable)
+		return 0, fmt.Errorf("%T could not be parsed to float64: %w", vr, ErrTypeNotParsable)
 	}
 	return v, nil
 }
 
-//Find returns a generic representation of the requested value when present
+// Find returns a generic representation of the requested value when present
 func (md Metadata) Find(key string) (dbus.Variant, bool) {
 	variant, found := md[key]
 	return variant, found

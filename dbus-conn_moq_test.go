@@ -14,25 +14,25 @@ var _ dbusConn = &dbusConnMock{}
 
 // dbusConnMock is a mock implementation of dbusConn.
 //
-// 	func TestSomethingThatUsesdbusConn(t *testing.T) {
+//	func TestSomethingThatUsesdbusConn(t *testing.T) {
 //
-// 		// make and configure a mocked dbusConn
-// 		mockeddbusConn := &dbusConnMock{
-// 			AddMatchSignalFunc: func(options ...dbus.MatchOption) error {
-// 				panic("mock out the AddMatchSignal method")
-// 			},
-// 			ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
-// 				panic("mock out the Object method")
-// 			},
-// 			SignalFunc: func(ch chan<- *dbus.Signal)  {
-// 				panic("mock out the Signal method")
-// 			},
-// 		}
+//		// make and configure a mocked dbusConn
+//		mockeddbusConn := &dbusConnMock{
+//			AddMatchSignalFunc: func(options ...dbus.MatchOption) error {
+//				panic("mock out the AddMatchSignal method")
+//			},
+//			ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+//				panic("mock out the Object method")
+//			},
+//			SignalFunc: func(ch chan<- *dbus.Signal)  {
+//				panic("mock out the Signal method")
+//			},
+//		}
 //
-// 		// use mockeddbusConn in code that requires dbusConn
-// 		// and then make assertions.
+//		// use mockeddbusConn in code that requires dbusConn
+//		// and then make assertions.
 //
-// 	}
+//	}
 type dbusConnMock struct {
 	// AddMatchSignalFunc mocks the AddMatchSignal method.
 	AddMatchSignalFunc func(options ...dbus.MatchOption) error
@@ -86,7 +86,8 @@ func (mock *dbusConnMock) AddMatchSignal(options ...dbus.MatchOption) error {
 
 // AddMatchSignalCalls gets all the calls that were made to AddMatchSignal.
 // Check the length with:
-//     len(mockeddbusConn.AddMatchSignalCalls())
+//
+//	len(mockeddbusConn.AddMatchSignalCalls())
 func (mock *dbusConnMock) AddMatchSignalCalls() []struct {
 	Options []dbus.MatchOption
 } {
@@ -119,7 +120,8 @@ func (mock *dbusConnMock) Object(dest string, path dbus.ObjectPath) dbusBusObjec
 
 // ObjectCalls gets all the calls that were made to Object.
 // Check the length with:
-//     len(mockeddbusConn.ObjectCalls())
+//
+//	len(mockeddbusConn.ObjectCalls())
 func (mock *dbusConnMock) ObjectCalls() []struct {
 	Dest string
 	Path dbus.ObjectPath
@@ -152,7 +154,8 @@ func (mock *dbusConnMock) Signal(ch chan<- *dbus.Signal) {
 
 // SignalCalls gets all the calls that were made to Signal.
 // Check the length with:
-//     len(mockeddbusConn.SignalCalls())
+//
+//	len(mockeddbusConn.SignalCalls())
 func (mock *dbusConnMock) SignalCalls() []struct {
 	Ch chan<- *dbus.Signal
 } {

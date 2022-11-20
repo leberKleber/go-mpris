@@ -2,10 +2,11 @@ package mpris
 
 import (
 	"fmt"
-	"github.com/godbus/dbus/v5"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/godbus/dbus/v5"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMetadata_MPRISTrackID(t *testing.T) {
@@ -75,33 +76,33 @@ func TestMetadata_MPRISLength(t *testing.T) {
 func TestMetadata_MPRISArtURL(t *testing.T) {
 	var expectedArtURL string
 	var expectedErrorText string
-	var artUrl string
+	var artURL string
 	var err error
 
 	//happycase
 	expectedArtURL = "/my/url"
 	expectedErrorText = "<nil>"
-	artUrl, err = Metadata{
+	artURL, err = Metadata{
 		"mpris:artUrl": dbus.MakeVariant("/my/url"),
 	}.MPRISArtURL()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedArtURL, artUrl, "unexpected artUrl")
+	assert.Equal(t, expectedArtURL, artURL, "unexpected artURL")
 
 	//not present
 	expectedArtURL = ""
 	expectedErrorText = "<nil>"
-	artUrl, err = Metadata{}.MPRISArtURL()
+	artURL, err = Metadata{}.MPRISArtURL()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedArtURL, artUrl, "unexpected artUrl")
+	assert.Equal(t, expectedArtURL, artURL, "unexpected artURL")
 
 	//unexpected type
 	expectedArtURL = ""
 	expectedErrorText = "int could not be parsed to string: the given type is not as expected"
-	artUrl, err = Metadata{
+	artURL, err = Metadata{
 		"mpris:artUrl": dbus.MakeVariant(42),
 	}.MPRISArtURL()
 	assert.Equal(t, expectedErrorText, fmt.Sprint(err), "unexpected error text")
-	assert.Equal(t, expectedArtURL, artUrl, "unexpected artUrl")
+	assert.Equal(t, expectedArtURL, artURL, "unexpected artURL")
 }
 
 func TestMetadata_XESAMAlbum(t *testing.T) {

@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/leberKleber/go-mpris"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/leberKleber/go-mpris"
 )
 
 func main() {

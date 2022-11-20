@@ -13,19 +13,19 @@ var _ dbusCall = &dbusCallMock{}
 
 // dbusCallMock is a mock implementation of dbusCall.
 //
-// 	func TestSomethingThatUsesdbusCall(t *testing.T) {
+//	func TestSomethingThatUsesdbusCall(t *testing.T) {
 //
-// 		// make and configure a mocked dbusCall
-// 		mockeddbusCall := &dbusCallMock{
-// 			StoreFunc: func(retvalues ...interface{}) error {
-// 				panic("mock out the Store method")
-// 			},
-// 		}
+//		// make and configure a mocked dbusCall
+//		mockeddbusCall := &dbusCallMock{
+//			StoreFunc: func(retvalues ...interface{}) error {
+//				panic("mock out the Store method")
+//			},
+//		}
 //
-// 		// use mockeddbusCall in code that requires dbusCall
-// 		// and then make assertions.
+//		// use mockeddbusCall in code that requires dbusCall
+//		// and then make assertions.
 //
-// 	}
+//	}
 type dbusCallMock struct {
 	// StoreFunc mocks the Store method.
 	StoreFunc func(retvalues ...interface{}) error
@@ -59,7 +59,8 @@ func (mock *dbusCallMock) Store(retvalues ...interface{}) error {
 
 // StoreCalls gets all the calls that were made to Store.
 // Check the length with:
-//     len(mockeddbusCall.StoreCalls())
+//
+//	len(mockeddbusCall.StoreCalls())
 func (mock *dbusCallMock) StoreCalls() []struct {
 	Retvalues []interface{}
 } {
