@@ -74,6 +74,10 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 
 ## Development
 
+### Versioning
+
+This library follows the semantic versioning concept.
+
 ### Mocks 
 
 Mocks will be generated with `github.com/matryer/moq`. It can be installed with
