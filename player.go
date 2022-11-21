@@ -79,6 +79,9 @@ func NewPlayer(name string) (Player, error) {
 }
 
 // NewPlayerWithConnection returns a new Player with the given name and connection.
+// Deprecated: NewPlayerWithConnection will be removed in future (v2.X.X).
+// Plain Struct initialization should be used instead.
+// Private fields will be public.
 func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
 	return Player{
 		name: name,
