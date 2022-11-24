@@ -45,3 +45,7 @@ type dbusCallWrapper struct {
 func (w dbusCallWrapper) Store(retvalues ...interface{}) error {
 	return w.call.Store(retvalues)
 }
+
+func (w dbusConnWrapper) Close() error {
+	return w.Close()
+}

@@ -5,10 +5,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/leberKleber/go-mpris)](https://goreportcard.com/report/github.com/leberKleber/go-mpris)
 [![codecov](https://codecov.io/gh/leberKleber/go-mpris/branch/main/graph/badge.svg)](https://codecov.io/gh/leberKleber/go-mpris)
 
-go-mpris is an implementation of the mpris dbus interface written in go (golang). 
+go-mpris is an implementation of the mpris dbus interface written in go (golang).
 Implemented and tested against version 2.2. See: https://specifications.freedesktop.org/mpris-spec/2.2.
 
 ## Example
+
 Example cli has been implemented.
 
 ```shell
@@ -67,14 +68,22 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 
 #### Signals
 
-| signal | library path        | implemented                   |
-|--------|---------------------|-------------------------------|
-| Seeked | not implemented yet | :negative_squared_cross_mark: |
-
+| signal | library path                                                      | implemented        |
+|--------|-------------------------------------------------------------------|--------------------|
+| Seeked | `mpris.Player.Seeked(<ctx> context.Context) (<-chan int, error) ` | :heavy_check_mark: |
 
 ## Development
 
-### Mocks 
+### Versioning
+
+This library follows the semantic versioning concept.
+
+### Commits
+
+Commits should follow the conventional commit rules.  
+See: https://conventionalcommits.org.
+
+### Mocks
 
 Mocks will be generated with `github.com/matryer/moq`. It can be installed with
 `go install github.com/matryer/moq@latest`. Generation can be triggered with `go generate ./...`.

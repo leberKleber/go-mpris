@@ -1,6 +1,7 @@
 package mpris
 
 import (
+	"context"
 	"fmt"
 	"github.com/godbus/dbus/v5"
 )
@@ -32,15 +33,17 @@ const (
 	playerCanPauseProperty       = playerInterface + ".CanPause"
 	playerCanSeekProperty        = playerInterface + ".CanSeek"
 	playerCanControlProperty     = playerInterface + ".CanControl"
+	signalNameSeeked             = "org.mpris.MediaPlayer2.Player.Seeked"
 )
 
 var dbusSessionBus = dbus.SessionBus
 
 //go:generate moq -out dbus-conn_moq_test.go . dbusConn
 type dbusConn interface {
-	Object(dest string, path dbus.ObjectPath) dbusBusObject
-	AddMatchSignal(options ...dbus.MatchOption) error
+	Object(string, dbus.ObjectPath) dbusBusObject
+	AddMatchSignal(...dbus.MatchOption) error
 	Signal(ch chan<- *dbus.Signal)
+	Close() error
 }
 
 //go:generate moq -out dbus-bus-object_moq_test.go . dbusBusObject
@@ -64,6 +67,7 @@ type Player struct {
 }
 
 // NewPlayer returns a new Player which is already connected to session-bus via dbus.SessionBus.
+// Don't forget to Player.Close() the player after use.
 func NewPlayer(name string) (Player, error) {
 	connection, err := dbusSessionBus()
 	if err != nil {
@@ -79,6 +83,9 @@ func NewPlayer(name string) (Player, error) {
 }
 
 // NewPlayerWithConnection returns a new Player with the given name and connection.
+// Deprecated: NewPlayerWithConnection will be removed in future (v2.X.X).
+// Plain Struct initialization should be used instead.
+// Private fields will be public.
 func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
 	return Player{
 		name: name,
@@ -86,6 +93,16 @@ func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
 			conn: connection,
 		},
 	}
+}
+
+// Close closes the dbus connection.
+func (p Player) Close() error {
+	err := p.connection.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close dbus connection: %w", err)
+	}
+
+	return nil
 }
 
 // Next skips to the next track in the tracklist.
@@ -392,6 +409,54 @@ func (p Player) CanControl() (bool, error) {
 		return false, err
 	}
 	return v.Value().(bool), nil
+}
+
+// Seeked indicates that the track position has changed in a way that is inconsistant with the current playing state.
+// When this signal is not received, clients should assume that:
+// - When playing, the position progresses according to the rate property.
+// - When paused, it remains constant.
+// This signal does not need to be emitted when playback starts or when the track changes, unless the track is starting
+// at an unexpected position. An expected position would be the last known one when going from Paused to Playing, and 0
+// when going from Stopped to Playing.
+// see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html#Signal:Seeked
+func (p Player) Seeked(ctx context.Context) (<-chan int, error) {
+	err := p.connection.AddMatchSignal(dbus.WithMatchSender("org.mpris.MediaPlayer2.vlc"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to add signal match option: %w", err)
+	}
+
+	positions := make(chan int)
+	errs := make(chan error)
+	go func() {
+		defer func() {
+			close(positions)
+			close(errs)
+		}()
+
+		signals := make(chan *dbus.Signal)
+		defer close(signals)
+		p.connection.Signal(signals)
+
+	collectPositions:
+		for {
+			select {
+			case sig := <-signals:
+				if sig.Name != signalNameSeeked || // irrelevant signal
+					len(sig.Body) != 1 { // invalid event
+					continue
+				}
+				micros, ok := sig.Body[0].(int64)
+				if !ok { // broken signal
+					continue
+				}
+				positions <- int(micros)
+			case <-ctx.Done():
+				break collectPositions
+			}
+		}
+	}()
+
+	return positions, nil
 }
 
 func (p Player) getProperty(property string) (dbus.Variant, error) {
