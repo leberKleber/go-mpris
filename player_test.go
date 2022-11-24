@@ -1,13 +1,14 @@
 package mpris
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/require"
-	"testing"
-
 	"github.com/godbus/dbus/v5"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"testing"
+	"time"
 )
 
 func TestPlayer_Methods(t *testing.T) {
@@ -759,6 +760,101 @@ func TestPlayer_Close(t *testing.T) {
 				connection: &mock,
 			}.Close()
 			require.Equal(t, msgOrEmpty(err), tt.expectedErr)
+			assert.Equal(t, 1, len(mock.CloseCalls()))
+		})
+	}
+}
+
+func TestPlayer_Seeked(t *testing.T) {
+	tests := []struct {
+		name string
+
+		givenSignals []*dbus.Signal
+
+		addMatchSignalErr               error
+		expectedAddMatchSignalCallCount int
+		expectedSignalCallCount         int
+
+		expectedErr       string
+		expectedPositions []int
+	}{
+		{
+			name:                            "happycase",
+			expectedAddMatchSignalCallCount: 1,
+			expectedSignalCallCount:         1,
+			givenSignals: []*dbus.Signal{
+				{
+					Name: "org.mpris.MediaPlayer2.Player.Seeked",
+					Body: []interface{}{int64(1111)},
+				}, {
+					Name: "unknown name",
+					Body: []interface{}{int64(22222)},
+				}, { // multiple body infos
+					Name: "org.mpris.MediaPlayer2.Player.Seeked",
+					Body: []interface{}{int64(333111), int64(333222)},
+				}, { // invalid body type
+					Name: "org.mpris.MediaPlayer2.Player.Seeked",
+					Body: []interface{}{"4444444"},
+				}, {
+					Name: "org.mpris.MediaPlayer2.Player.Seeked",
+					Body: []interface{}{int64(55555555)},
+				},
+			},
+			expectedPositions: []int{
+				1111,
+				55555555,
+			},
+		}, {
+			name:                            "add match signal error",
+			addMatchSignalErr:               errors.New("unexpected error"),
+			expectedAddMatchSignalCallCount: 1,
+			expectedSignalCallCount:         0,
+			expectedErr:                     "failed to add signal match option: unexpected error",
+			givenSignals: []*dbus.Signal{
+				{
+					Name: "org.mpris.MediaPlayer2.Player.Seeked",
+					Body: []interface{}{int64(1111)},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+			defer cancel()
+
+			mock := &dbusConnMock{
+				AddMatchSignalFunc: func(_ ...dbus.MatchOption) error {
+					return tt.addMatchSignalErr
+				},
+				SignalFunc: func(ch chan<- *dbus.Signal) {
+					go func() {
+						for _, sig := range tt.givenSignals {
+							ch <- sig
+						}
+					}()
+				},
+			}
+
+			poss, err := Player{
+				connection: mock,
+			}.Seeked(testCtx)
+			require.Equal(t, tt.expectedErr, msgOrEmpty(err))
+
+			var collectedPoss []int
+			if poss != nil {
+				for {
+					p, ok := <-poss
+					if !ok {
+						break
+					}
+					collectedPoss = append(collectedPoss, p)
+				}
+			}
+			assert.EqualValues(t, tt.expectedPositions, collectedPoss)
+			assert.Equal(t, tt.expectedAddMatchSignalCallCount, len(mock.AddMatchSignalCalls()))
+			assert.Equal(t, tt.expectedSignalCallCount, len(mock.SignalCalls()))
 		})
 	}
 }

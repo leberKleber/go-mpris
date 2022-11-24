@@ -68,9 +68,9 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 
 #### Signals
 
-| signal | library path        | implemented                   |
-|--------|---------------------|-------------------------------|
-| Seeked | not implemented yet | :negative_squared_cross_mark: |
+| signal | library path                                                      | implemented        |
+|--------|-------------------------------------------------------------------|--------------------|
+| Seeked | `mpris.Player.Seeked(<ctx> context.Context) (<-chan int, error) ` | :heavy_check_mark: |
 
 ## Development
 
