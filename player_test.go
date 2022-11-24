@@ -3,6 +3,7 @@ package mpris
 import (
 	"errors"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/godbus/dbus/v5"
@@ -732,6 +733,36 @@ func TestPlayer_SetProperties(t *testing.T) {
 	}
 }
 
+func TestPlayer_Close(t *testing.T) {
+	tests := []struct {
+		name        string
+		closeErr    error
+		expectedErr string
+	}{
+		{
+			name: "Happycase",
+		}, {
+			name:        "Close error",
+			closeErr:    errors.New("unexpected error"),
+			expectedErr: "failed to close dbus connection: unexpected error",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock := dbusConnMock{
+				CloseFunc: func() error {
+					return tt.closeErr
+				},
+			}
+
+			err := Player{
+				connection: &mock,
+			}.Close()
+			require.Equal(t, msgOrEmpty(err), tt.expectedErr)
+		})
+	}
+}
+
 func TestNewPlayer(t *testing.T) {
 	oldDbusSessionBus := dbusSessionBus
 	defer func() {
@@ -772,4 +803,13 @@ func TestNewPlayerWithConnection(t *testing.T) {
 
 	p := NewPlayerWithConnection("test", dbusConn)
 	assert.Equal(t, &dbusConnWrapper{dbusConn}, p.connection)
+}
+
+func msgOrEmpty(err error) string {
+	if err == nil {
+		return ""
+	}
+
+	return err.Error()
+
 }

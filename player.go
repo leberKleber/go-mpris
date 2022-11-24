@@ -1,6 +1,7 @@
 package mpris
 
 import (
+	"context"
 	"fmt"
 	"github.com/godbus/dbus/v5"
 )
@@ -38,9 +39,10 @@ var dbusSessionBus = dbus.SessionBus
 
 //go:generate moq -out dbus-conn_moq_test.go . dbusConn
 type dbusConn interface {
-	Object(dest string, path dbus.ObjectPath) dbusBusObject
-	AddMatchSignal(options ...dbus.MatchOption) error
+	Object(string, dbus.ObjectPath) dbusBusObject
+	AddMatchSignal(...dbus.MatchOption) error
 	Signal(ch chan<- *dbus.Signal)
+	Close() error
 }
 
 //go:generate moq -out dbus-bus-object_moq_test.go . dbusBusObject
@@ -64,6 +66,7 @@ type Player struct {
 }
 
 // NewPlayer returns a new Player which is already connected to session-bus via dbus.SessionBus.
+// Don't forget to Player.Close() the player after use.
 func NewPlayer(name string) (Player, error) {
 	connection, err := dbusSessionBus()
 	if err != nil {
@@ -89,6 +92,16 @@ func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
 			conn: connection,
 		},
 	}
+}
+
+// Close closes the dbus connection.
+func (p Player) Close() error {
+	err := p.connection.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close dbus connection: %w", err)
+	}
+
+	return nil
 }
 
 // Next skips to the next track in the tracklist.

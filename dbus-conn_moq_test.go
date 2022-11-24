@@ -18,10 +18,13 @@ var _ dbusConn = &dbusConnMock{}
 //
 //		// make and configure a mocked dbusConn
 //		mockeddbusConn := &dbusConnMock{
-//			AddMatchSignalFunc: func(options ...dbus.MatchOption) error {
+//			AddMatchSignalFunc: func(matchOptions ...dbus.MatchOption) error {
 //				panic("mock out the AddMatchSignal method")
 //			},
-//			ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+//			CloseFunc: func() error {
+//				panic("mock out the Close method")
+//			},
+//			ObjectFunc: func(s string, objectPath dbus.ObjectPath) dbusBusObject {
 //				panic("mock out the Object method")
 //			},
 //			SignalFunc: func(ch chan<- *dbus.Signal)  {
@@ -35,10 +38,13 @@ var _ dbusConn = &dbusConnMock{}
 //	}
 type dbusConnMock struct {
 	// AddMatchSignalFunc mocks the AddMatchSignal method.
-	AddMatchSignalFunc func(options ...dbus.MatchOption) error
+	AddMatchSignalFunc func(matchOptions ...dbus.MatchOption) error
+
+	// CloseFunc mocks the Close method.
+	CloseFunc func() error
 
 	// ObjectFunc mocks the Object method.
-	ObjectFunc func(dest string, path dbus.ObjectPath) dbusBusObject
+	ObjectFunc func(s string, objectPath dbus.ObjectPath) dbusBusObject
 
 	// SignalFunc mocks the Signal method.
 	SignalFunc func(ch chan<- *dbus.Signal)
@@ -47,15 +53,18 @@ type dbusConnMock struct {
 	calls struct {
 		// AddMatchSignal holds details about calls to the AddMatchSignal method.
 		AddMatchSignal []struct {
-			// Options is the options argument value.
-			Options []dbus.MatchOption
+			// MatchOptions is the matchOptions argument value.
+			MatchOptions []dbus.MatchOption
+		}
+		// Close holds details about calls to the Close method.
+		Close []struct {
 		}
 		// Object holds details about calls to the Object method.
 		Object []struct {
-			// Dest is the dest argument value.
-			Dest string
-			// Path is the path argument value.
-			Path dbus.ObjectPath
+			// S is the s argument value.
+			S string
+			// ObjectPath is the objectPath argument value.
+			ObjectPath dbus.ObjectPath
 		}
 		// Signal holds details about calls to the Signal method.
 		Signal []struct {
@@ -64,24 +73,25 @@ type dbusConnMock struct {
 		}
 	}
 	lockAddMatchSignal sync.RWMutex
+	lockClose          sync.RWMutex
 	lockObject         sync.RWMutex
 	lockSignal         sync.RWMutex
 }
 
 // AddMatchSignal calls AddMatchSignalFunc.
-func (mock *dbusConnMock) AddMatchSignal(options ...dbus.MatchOption) error {
+func (mock *dbusConnMock) AddMatchSignal(matchOptions ...dbus.MatchOption) error {
 	if mock.AddMatchSignalFunc == nil {
 		panic("dbusConnMock.AddMatchSignalFunc: method is nil but dbusConn.AddMatchSignal was just called")
 	}
 	callInfo := struct {
-		Options []dbus.MatchOption
+		MatchOptions []dbus.MatchOption
 	}{
-		Options: options,
+		MatchOptions: matchOptions,
 	}
 	mock.lockAddMatchSignal.Lock()
 	mock.calls.AddMatchSignal = append(mock.calls.AddMatchSignal, callInfo)
 	mock.lockAddMatchSignal.Unlock()
-	return mock.AddMatchSignalFunc(options...)
+	return mock.AddMatchSignalFunc(matchOptions...)
 }
 
 // AddMatchSignalCalls gets all the calls that were made to AddMatchSignal.
@@ -89,10 +99,10 @@ func (mock *dbusConnMock) AddMatchSignal(options ...dbus.MatchOption) error {
 //
 //	len(mockeddbusConn.AddMatchSignalCalls())
 func (mock *dbusConnMock) AddMatchSignalCalls() []struct {
-	Options []dbus.MatchOption
+	MatchOptions []dbus.MatchOption
 } {
 	var calls []struct {
-		Options []dbus.MatchOption
+		MatchOptions []dbus.MatchOption
 	}
 	mock.lockAddMatchSignal.RLock()
 	calls = mock.calls.AddMatchSignal
@@ -100,22 +110,49 @@ func (mock *dbusConnMock) AddMatchSignalCalls() []struct {
 	return calls
 }
 
+// Close calls CloseFunc.
+func (mock *dbusConnMock) Close() error {
+	if mock.CloseFunc == nil {
+		panic("dbusConnMock.CloseFunc: method is nil but dbusConn.Close was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockClose.Lock()
+	mock.calls.Close = append(mock.calls.Close, callInfo)
+	mock.lockClose.Unlock()
+	return mock.CloseFunc()
+}
+
+// CloseCalls gets all the calls that were made to Close.
+// Check the length with:
+//
+//	len(mockeddbusConn.CloseCalls())
+func (mock *dbusConnMock) CloseCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockClose.RLock()
+	calls = mock.calls.Close
+	mock.lockClose.RUnlock()
+	return calls
+}
+
 // Object calls ObjectFunc.
-func (mock *dbusConnMock) Object(dest string, path dbus.ObjectPath) dbusBusObject {
+func (mock *dbusConnMock) Object(s string, objectPath dbus.ObjectPath) dbusBusObject {
 	if mock.ObjectFunc == nil {
 		panic("dbusConnMock.ObjectFunc: method is nil but dbusConn.Object was just called")
 	}
 	callInfo := struct {
-		Dest string
-		Path dbus.ObjectPath
+		S          string
+		ObjectPath dbus.ObjectPath
 	}{
-		Dest: dest,
-		Path: path,
+		S:          s,
+		ObjectPath: objectPath,
 	}
 	mock.lockObject.Lock()
 	mock.calls.Object = append(mock.calls.Object, callInfo)
 	mock.lockObject.Unlock()
-	return mock.ObjectFunc(dest, path)
+	return mock.ObjectFunc(s, objectPath)
 }
 
 // ObjectCalls gets all the calls that were made to Object.
@@ -123,12 +160,12 @@ func (mock *dbusConnMock) Object(dest string, path dbus.ObjectPath) dbusBusObjec
 //
 //	len(mockeddbusConn.ObjectCalls())
 func (mock *dbusConnMock) ObjectCalls() []struct {
-	Dest string
-	Path dbus.ObjectPath
+	S          string
+	ObjectPath dbus.ObjectPath
 } {
 	var calls []struct {
-		Dest string
-		Path dbus.ObjectPath
+		S          string
+		ObjectPath dbus.ObjectPath
 	}
 	mock.lockObject.RLock()
 	calls = mock.calls.Object
