@@ -47,5 +47,5 @@ func (w dbusCallWrapper) Store(retvalues ...interface{}) error {
 }
 
 func (w dbusConnWrapper) Close() error {
-	return w.Close()
+	return w.conn.Close()
 }

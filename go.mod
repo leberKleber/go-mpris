@@ -3,8 +3,8 @@ module github.com/leberKleber/go-mpris
 go 1.19
 
 require (
-	github.com/godbus/dbus/v5 v5.0.6
-	github.com/stretchr/testify v1.8.0
+	github.com/godbus/dbus/v5 v5.1.0
+	github.com/stretchr/testify v1.8.4
 )
 
 require (
