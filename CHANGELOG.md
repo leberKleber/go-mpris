@@ -1,6 +1,6 @@
 # Changelog
 
-## unreleased
+## v0.2.1
 - make goreportcard 100% happy
 
 ## v0.2.0

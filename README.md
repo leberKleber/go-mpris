@@ -8,6 +8,22 @@
 go-mpris is an implementation of the mpris dbus interface written in go (golang).
 Implemented and tested against version 2.2. See: https://specifications.freedesktop.org/mpris-spec/2.2.
 
+* [Example](#example)
+* [Features](#features)
+  * [Player](#player)
+    * [Methods](#methods)
+    * [Properties](#properties)
+    * [Signals](#signals)
+  * [TrackList](#tracklist)
+    * [Methods](#methods-1)
+    * [Properties](#properties-1)
+    * [Signals](#signals-1)
+* [Development](#development)
+  * [Versioning](#versioning)
+  * [Commits](#commits)
+  * [Mocks](#mocks)
+  * [Go Docs](#go-docs)
+
 ## Example
 
 Example cli has been implemented.
@@ -20,7 +36,7 @@ go build examples/cli.go
 ./cli-client
 ```
 
-## Features:
+## Features
 
 ### Player
 
@@ -71,6 +87,36 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 | signal | library path                                                      | implemented        |
 |--------|-------------------------------------------------------------------|--------------------|
 | Seeked | `mpris.Player.Seeked(<ctx> context.Context) (<-chan int, error) ` | :heavy_check_mark: |
+
+### TrackList
+
+https://specifications.freedesktop.org/mpris-spec/2.2/Track_List_Interface.html
+
+#### Methods
+
+| method            | library path        | implemented              |
+|-------------------|---------------------|--------------------------|
+| GetTracksMetadata | Not implemented yet | :heavy_multiplication_x: |
+| AddTrack          | Not implemented yet | :heavy_multiplication_x: |
+| RemoveTrack       | Not implemented yet | :heavy_multiplication_x: |
+| GoTo              | Not implemented yet | :heavy_multiplication_x: |
+
+#### Properties
+
+| property       | library path        | implemented              |
+|----------------|---------------------|--------------------------|
+| Tracks         | Not implemented yet | :heavy_multiplication_x: |
+| CanEditTracks  | Not implemented yet | :heavy_multiplication_x: |
+
+
+#### Signals
+
+| signal               | library path        | implemented              |
+|----------------------|---------------------|--------------------------|
+| TrackListReplaced    | Not implemented yet | :heavy_multiplication_x: |
+| TrackAdded           | Not implemented yet | :heavy_multiplication_x: |
+| TrackRemoved         | Not implemented yet | :heavy_multiplication_x: |
+| TrackMetadataChanged | Not implemented yet | :heavy_multiplication_x: |
 
 ## Development
 
