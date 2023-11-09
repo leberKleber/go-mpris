@@ -64,7 +64,7 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 | CanPlay        | `mpris.Player.CanPlay() (bool, error)`                                  | :heavy_check_mark: |
 | CanPause       | `mpris.Player.CanPause() (bool, error)`                                 | :heavy_check_mark: |
 | CanSeek        | `mpris.Player.CanSeek() (bool, error)`                                  | :heavy_check_mark: |
-| CanControl     | `mpris.Player.CanControl(bool, error)`                                  | :heavy_check_mark: |
+| CanControl     | `mpris.Player.CanControl() (bool, error)`                               | :heavy_check_mark: |
 
 #### Signals
 

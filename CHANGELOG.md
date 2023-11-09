@@ -1,6 +1,7 @@
 # Changelog
 
 ## v0.2.0
+- fix dbusConnWrapper close handling
 - update go deps
 
 ## v0.1.0
