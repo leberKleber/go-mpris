@@ -1,5 +1,8 @@
 # Changelog
 
+## unreleased
+- make goreportcard 100% happy
+
 ## v0.2.0
 - fix dbusConnWrapper close handling
 - update go deps

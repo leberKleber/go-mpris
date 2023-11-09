@@ -36,6 +36,7 @@ func main() {
 	}
 }
 
+//gocyclo:ignore //this is an example
 func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 	switch input {
 	case "help":
@@ -163,7 +164,6 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			fmt.Printf("failed to get metadata: %s\n", err)
 		}
 		fmt.Println(s)
-
 	case "volume":
 		s, err := p.Volume()
 		if err != nil {
