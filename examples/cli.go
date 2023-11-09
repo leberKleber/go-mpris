@@ -28,181 +28,244 @@ func main() {
 			os.Exit(1)
 		}
 
-		err = handleInput(p, reader, strings.Trim(input, "\n "))
-		if err != nil {
-			fmt.Printf("failed to exec command %q: %s\n", input, err)
-			os.Exit(1)
-		}
+		handleInput(p, reader, strings.Trim(input, "\n "))
 	}
 }
 
-func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
+func handleSetInput(p mpris.Player, reader *bufio.Reader, input string) error {
+	var err error
 	switch input {
-	case "help":
-		printHelp()
-	case "quit":
-		os.Exit(0)
-	case "next":
-		p.Next()
-	case "previous":
-		p.Next()
-	case "pause":
-		p.Pause()
-	case "play-pause":
-		p.PlayPause()
-	case "stop":
-		p.Stop()
-	case "play":
-		p.Play()
-	case "seek":
-		fmt.Println("The number of microseconds to seek forward")
-		fmt.Print("-->")
-		offsetAsString, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
-
-		offset, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
-		if err != nil {
-			fmt.Println("input must be a number")
-			return nil
-		}
-
-		p.SeekTo(offset)
 	case "set-position":
-		fmt.Println("The track position in microseconds.")
-		fmt.Print("-->")
-		offsetAsString, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
-
-		position, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
-		if err != nil {
-			fmt.Println("input must be a number")
-			return nil
-		}
-
-		p.SetPosition("/not/used", position)
-	case "open-uri":
-		fmt.Println("Open the given uri.")
-		fmt.Print("-->")
-		uri, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
-
-		p.OpenURI(strings.Trim(uri, "\n "))
-	case "playback-status":
-		s, err := p.PlaybackStatus()
-		if err != nil {
-			fmt.Printf("failed to get playback status: %s\n", err)
-		}
-		fmt.Println(s)
-	case "loop-status":
-		s, err := p.LoopStatus()
-		if err != nil {
-			fmt.Printf("failed to get loop status: %s\n", err)
-		}
-		fmt.Println(s)
+		err = handleSetPosition(p, reader)
 	case "set loop-status":
-		status, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
-
-		err = p.SetLoopStatus(mpris.LoopStatus(strings.Trim(status, "\n ")))
-		if err != nil {
-			fmt.Printf("failed to set loop status: %s\n", err)
-		}
-	case "rate":
-		s, err := p.Rate()
-		if err != nil {
-			fmt.Printf("failed to get rate: %s\n", err)
-		}
-		fmt.Println(s)
+		err = handleSetLoopStatus(p, reader)
 	case "set rate":
-		rateAsString, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
-
-		rate, err := strconv.ParseFloat(strings.Trim(rateAsString, "\n "), 10)
-		if err != nil {
-			fmt.Println("input must be a float64")
-		}
-
-		err = p.SetRate(rate)
-		if err != nil {
-			fmt.Printf("failed to set rate: %s\n", err)
-		}
-	case "shuffle":
-		s, err := p.Shuffle()
-		if err != nil {
-			fmt.Printf("failed to get shuffle: %s\n", err)
-		}
-		fmt.Println(s)
+		err = handleSetRate(p, reader)
 	case "set shuffle":
-		shuffleAsString, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
-
-		shuffle, err := strconv.ParseBool(strings.Trim(shuffleAsString, "\n "))
-		if err != nil {
-			fmt.Println("input must be a bool")
-		}
-
-		err = p.SetShuffle(shuffle)
-		if err != nil {
-			fmt.Printf("failed to set shuffle: %s\n", err)
-		}
-	case "metadata":
-		s, err := p.Metadata()
-		if err != nil {
-			fmt.Printf("failed to get metadata: %s\n", err)
-		}
-		fmt.Println(s)
-
-	case "volume":
-		s, err := p.Volume()
-		if err != nil {
-			fmt.Printf("failed to get volume: %s\n", err)
-		}
-		fmt.Println(s)
+		err = handleSetShuffle(p, reader)
 	case "set volume":
-		volumeAsString, err := reader.ReadString('\n')
-		if err != nil {
-			return fmt.Errorf("failed to read input: %w", err)
-		}
+		err = handleSetVolume(p, reader)
+	case "seek":
+		err = handleSeek(p, reader)
+	case "open-uri":
+		err = handleOpenURI(p, reader)
+	}
 
-		shuffle, err := strconv.ParseFloat(strings.Trim(volumeAsString, "\n "), 10)
-		if err != nil {
-			fmt.Println("input must be a float64")
-		}
+	return err
+}
 
-		err = p.SetVolume(shuffle)
-		if err != nil {
-			fmt.Printf("failed to set volume: %s\n", err)
-		}
+func handleOpenURI(p mpris.Player, reader *bufio.Reader) error {
+	fmt.Println("Open the given uri.")
+	fmt.Print("-->")
+	uri, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	p.OpenURI(strings.Trim(uri, "\n "))
+	return nil
+}
+
+func handleSeek(p mpris.Player, reader *bufio.Reader) error {
+	fmt.Println("The number of microseconds to seek forward")
+	fmt.Print("-->")
+	offsetAsString, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	offset, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
+	if err != nil {
+		fmt.Println("input must be a number")
+		return nil
+	}
+
+	p.SeekTo(offset)
+	return nil
+}
+
+func handleSetVolume(p mpris.Player, reader *bufio.Reader) error {
+	volumeAsString, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	shuffle, err := strconv.ParseFloat(strings.Trim(volumeAsString, "\n "), 10)
+	if err != nil {
+		fmt.Println("input must be a float64")
+	}
+
+	err = p.SetVolume(shuffle)
+	if err != nil {
+		fmt.Printf("failed to set volume: %s\n", err)
+	}
+	return nil
+}
+
+func handleSetShuffle(p mpris.Player, reader *bufio.Reader) error {
+	shuffleAsString, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	shuffle, err := strconv.ParseBool(strings.Trim(shuffleAsString, "\n "))
+	if err != nil {
+		fmt.Println("input must be a bool")
+	}
+
+	err = p.SetShuffle(shuffle)
+	if err != nil {
+		fmt.Printf("failed to set shuffle: %s\n", err)
+	}
+	return nil
+}
+
+func handleSetRate(p mpris.Player, reader *bufio.Reader) error {
+	rateAsString, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	rate, err := strconv.ParseFloat(strings.Trim(rateAsString, "\n "), 10)
+	if err != nil {
+		fmt.Println("input must be a float64")
+	}
+
+	err = p.SetRate(rate)
+	if err != nil {
+		fmt.Printf("failed to set rate: %s\n", err)
+	}
+	return nil
+}
+
+func handleSetLoopStatus(p mpris.Player, reader *bufio.Reader) error {
+	status, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	err = p.SetLoopStatus(mpris.LoopStatus(strings.Trim(status, "\n ")))
+	if err != nil {
+		fmt.Printf("failed to set loop status: %s\n", err)
+	}
+	return nil
+}
+
+func handleSetPosition(p mpris.Player, reader *bufio.Reader) error {
+	fmt.Println("The track position in microseconds.")
+	fmt.Print("-->")
+	offsetAsString, err := reader.ReadString('\n')
+	if err != nil {
+		return fmt.Errorf("failed to read input: %w", err)
+	}
+
+	position, err := strconv.ParseInt(strings.Trim(offsetAsString, "\n "), 10, 64)
+	if err != nil {
+		fmt.Println("input must be a number")
+		return nil
+	}
+
+	p.SetPosition("/not/used", position)
+	return nil
+}
+
+func handleGetInput(p mpris.Player, input string) {
+	switch input {
+	case "playback-status":
+		handleGetPlaybackStatus(p)
+	case "loop-status":
+		handleGetLoopStatus(p)
+	case "rate":
+		handleGetRate(p)
+	case "shuffle":
+		handleGetShuffle(p)
+	case "metadata":
+		handleGetMetadata(p)
+	case "volume":
+		handleGetVolume(p)
 	case "position":
-		s, err := p.Position()
-		if err != nil {
-			fmt.Printf("failed to get position: %s\n", err)
-		}
-		fmt.Println(s)
+		handleGetPosition(p)
 	case "minimum-rate":
-		s, err := p.MinimumRate()
-		if err != nil {
-			fmt.Printf("failed to get minimum-rate: %s\n", err)
-		}
-		fmt.Println(s)
+		handleGetMinimumRate(p)
 	case "maximum-rate":
-		s, err := p.MaximumRate()
-		if err != nil {
-			fmt.Printf("failed to get maximum-rate: %s\n", err)
-		}
-		fmt.Println(s)
+		handleExtMaximumRate(p)
+	}
+}
+
+func handleGetPlaybackStatus(p mpris.Player) {
+	s, err := p.PlaybackStatus()
+	if err != nil {
+		fmt.Printf("failed to get playback status: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetLoopStatus(p mpris.Player) {
+	s, err := p.LoopStatus()
+	if err != nil {
+		fmt.Printf("failed to get loop status: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetRate(p mpris.Player) {
+	s, err := p.Rate()
+	if err != nil {
+		fmt.Printf("failed to get rate: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetShuffle(p mpris.Player) {
+	s, err := p.Shuffle()
+	if err != nil {
+		fmt.Printf("failed to get shuffle: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetMetadata(p mpris.Player) {
+	s, err := p.Metadata()
+	if err != nil {
+		fmt.Printf("failed to get metadata: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetVolume(p mpris.Player) {
+	s, err := p.Volume()
+	if err != nil {
+		fmt.Printf("failed to get volume: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetPosition(p mpris.Player) {
+	s, err := p.Position()
+	if err != nil {
+		fmt.Printf("failed to get position: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleGetMinimumRate(p mpris.Player) {
+	s, err := p.MinimumRate()
+	if err != nil {
+		fmt.Printf("failed to get minimum-rate: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleExtMaximumRate(p mpris.Player) {
+	s, err := p.MaximumRate()
+	if err != nil {
+		fmt.Printf("failed to get maximum-rate: %s\n", err)
+	}
+	fmt.Println(s)
+}
+
+func handleCan(p mpris.Player, input string) {
+	switch input {
 	case "can-go-next":
 		s, err := p.CanGoNext()
 		if err != nil {
@@ -239,12 +302,36 @@ func handleInput(p mpris.Player, reader *bufio.Reader, input string) error {
 			fmt.Printf("failed to get can-control: %s\n", err)
 		}
 		fmt.Println(s)
-	default:
-		fmt.Println("Unknown command.")
-		printHelp()
+	}
+}
+
+func handleInput(p mpris.Player, reader *bufio.Reader, input string) {
+	handleGetInput(p, input)
+	handleCan(p, input)
+
+	err := handleSetInput(p, reader, input)
+	if err != nil {
+		fmt.Printf("failed to handle set input: %s\n", err)
 	}
 
-	return nil
+	switch input {
+	case "help":
+		printHelp()
+	case "quit":
+		os.Exit(0)
+	case "next":
+		p.Next()
+	case "previous":
+		p.Next()
+	case "pause":
+		p.Pause()
+	case "play-pause":
+		p.PlayPause()
+	case "stop":
+		p.Stop()
+	case "play":
+		p.Play()
+	}
 }
 
 func printHelp() {

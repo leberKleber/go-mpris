@@ -3,6 +3,7 @@ package mpris
 import (
 	"context"
 	"fmt"
+
 	"github.com/godbus/dbus/v5"
 )
 
@@ -58,7 +59,7 @@ type dbusCall interface {
 	Store(retvalues ...interface{}) error
 }
 
-// Player is a implementation of dbus org.mpris.MediaPlayer2.Player. see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
+// Player is an implementation of dbus org.mpris.MediaPlayer2.Player. see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
 // Use NewPlayer to create a new instance with a connected session-bus via dbus.SessionBus.
 // Use NewPlayerWithConnection when you want to use a self-configured dbus.Conn
 type Player struct {
@@ -83,7 +84,7 @@ func NewPlayer(name string) (Player, error) {
 }
 
 // NewPlayerWithConnection returns a new Player with the given name and connection.
-// Deprecated: NewPlayerWithConnection will be removed in future (v2.X.X).
+// Deprecated: NewPlayerWithConnection will be removed in future (v1.X.X).
 // Plain Struct initialization should be used instead.
 // Private fields will be public.
 func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
@@ -411,7 +412,7 @@ func (p Player) CanControl() (bool, error) {
 	return v.Value().(bool), nil
 }
 
-// Seeked indicates that the track position has changed in a way that is inconsistant with the current playing state.
+// Seeked indicates that the track position has changed in a way that is inconsistent with the current playing state.
 // When this signal is not received, clients should assume that:
 // - When playing, the position progresses according to the rate property.
 // - When paused, it remains constant.

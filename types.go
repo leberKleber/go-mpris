@@ -10,21 +10,30 @@ import (
 
 const timeFormat = "2006-01-02T15:04-07:00"
 
+// ErrTypeNotParsable indicates, that the given type is not parable.
 var ErrTypeNotParsable = errors.New("the given type is not as expected")
 
+// PlaybackStatus represents the playback status.
 type PlaybackStatus string
 
 const (
+	// PlaybackStatusPlaying represents the playback status "Playing".
 	PlaybackStatusPlaying PlaybackStatus = "Playing"
-	PlaybackStatusPaused  PlaybackStatus = "Paused"
+	// PlaybackStatusStopped represents the playback status "Paused".
 	PlaybackStatusStopped PlaybackStatus = "Stopped"
+	// PlaybackStatusPaused represents the playback status "Stopped".
+	PlaybackStatusPaused PlaybackStatus = "Paused"
 )
 
+// LoopStatus represents the loop status.
 type LoopStatus string
 
 const (
-	LoopStatusNone     LoopStatus = "None"
-	LoopStatusTrack    LoopStatus = "Track"
+	// LoopStatusNone represents the loop status "None".
+	LoopStatusNone LoopStatus = "None"
+	// LoopStatusTrack represents the loop status "Track".
+	LoopStatusTrack LoopStatus = "Track"
+	// LoopStatusPlaylist represents the loop status "Playlist".
 	LoopStatusPlaylist LoopStatus = "Playlist"
 )
 
