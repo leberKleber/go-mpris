@@ -81,3 +81,63 @@ func TestMediaPlayer_Close(t *testing.T) {
 		})
 	}
 }
+
+func TestMediaPlayer_Methods(t *testing.T) {
+	tests := []struct {
+		name           string
+		givenName      string
+		action         func(p *MediaPlayer)
+		expectedDest   string
+		expectedPath   dbus.ObjectPath
+		expectedMethod string
+		expectedFlags  dbus.Flags
+		expectedArgs   []interface{}
+	}{
+		{
+			name:      "Raise",
+			givenName: "raise",
+			action: func(p *MediaPlayer) {
+				p.Raise()
+			},
+			expectedDest:   "raise",
+			expectedPath:   "/org/mpris/MediaPlayer2",
+			expectedMethod: "org.mpris.MediaPlayer2.Raise",
+			expectedFlags:  0,
+			expectedArgs:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var givenDest string
+			var givenPath dbus.ObjectPath
+			var givenMethod string
+			var givenFlags dbus.Flags
+			var givenArgs []interface{}
+
+			tt.action(&MediaPlayer{
+				name: tt.givenName,
+				connection: &dbusConnMock{
+					ObjectFunc: func(dest string, path dbus.ObjectPath) dbusBusObject {
+						givenDest = dest
+						givenPath = path
+						return &dbusBusObjectMock{
+							CallFunc: func(method string, flags dbus.Flags, args ...interface{}) dbusCall {
+								givenMethod = method
+								givenFlags = flags
+								givenArgs = args
+								return nil
+							},
+						}
+					},
+				},
+			})
+
+			assert.Equal(t, tt.expectedDest, givenDest, "given dest is not as expected")
+			assert.Equal(t, tt.expectedPath, givenPath, "given path is not as expected")
+			assert.Equal(t, tt.expectedMethod, givenMethod, "given method is not as expected")
+			assert.Equal(t, tt.expectedFlags, givenFlags, "given flags is not as expected")
+			assert.EqualValues(t, tt.expectedArgs, givenArgs, "given args is not as expected")
+		})
+	}
+}

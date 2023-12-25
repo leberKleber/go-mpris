@@ -46,10 +46,10 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Media_Player.html
 
 #### Methods
 
-| method | library path                | implemented              |
-|--------|-----------------------------|--------------------------|
-| Raise  | `mpris.MediaPlayer.Raise()` | :heavy_multiplication_x: |
-| Quit   | `mpris.MediaPlayer.Quit()`  | :heavy_multiplication_x: |
+| method | library path                | implemented        |
+|--------|-----------------------------|--------------------|
+| Raise  | `mpris.MediaPlayer.Raise()` | :heavy_check_mark: |
+| Quit   | `mpris.MediaPlayer.Quit()`  | :heavy_check_mark: |
 
 #### Properties
 
