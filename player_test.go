@@ -901,12 +901,3 @@ func TestNewPlayerWithConnection(t *testing.T) {
 	p := NewPlayerWithConnection("test", dbusConn)
 	assert.Equal(t, &dbusConnWrapper{dbusConn}, p.connection)
 }
-
-func msgOrEmpty(err error) string {
-	if err == nil {
-		return ""
-	}
-
-	return err.Error()
-
-}
