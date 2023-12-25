@@ -4,6 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/leberKleber/go-mpris?status.png)](https://godoc.org/github.com/leberKleber/go-mpris)
 [![Go Report Card](https://goreportcard.com/badge/github.com/leberKleber/go-mpris)](https://goreportcard.com/report/github.com/leberKleber/go-mpris)
 [![codecov](https://codecov.io/gh/leberKleber/go-mpris/branch/main/graph/badge.svg)](https://codecov.io/gh/leberKleber/go-mpris)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 go-mpris is an implementation of the mpris dbus interface written in go (golang).
 Implemented and tested against version 2.2. See: https://specifications.freedesktop.org/mpris-spec/2.2.
