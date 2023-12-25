@@ -49,3 +49,25 @@ func (w dbusCallWrapper) Store(retvalues ...interface{}) error {
 func (w dbusConnWrapper) Close() error {
 	return w.conn.Close()
 }
+
+var dbusSessionBus = dbus.SessionBus
+
+//go:generate moq -out dbus-conn_moq_test.go . dbusConn
+type dbusConn interface {
+	Object(string, dbus.ObjectPath) dbusBusObject
+	AddMatchSignal(...dbus.MatchOption) error
+	Signal(ch chan<- *dbus.Signal)
+	Close() error
+}
+
+//go:generate moq -out dbus-bus-object_moq_test.go . dbusBusObject
+type dbusBusObject interface {
+	Call(method string, flags dbus.Flags, args ...interface{}) dbusCall
+	GetProperty(p string) (v dbus.Variant, e error)
+	SetProperty(p string, v interface{}) error
+}
+
+//go:generate moq -out dbus-call_moq_test.go . dbusCall
+type dbusCall interface {
+	Store(retvalues ...interface{}) error
+}

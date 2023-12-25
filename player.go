@@ -37,54 +37,28 @@ const (
 	signalNameSeeked             = "org.mpris.MediaPlayer2.Player.Seeked"
 )
 
-var dbusSessionBus = dbus.SessionBus
-
-//go:generate moq -out dbus-conn_moq_test.go . dbusConn
-type dbusConn interface {
-	Object(string, dbus.ObjectPath) dbusBusObject
-	AddMatchSignal(...dbus.MatchOption) error
-	Signal(ch chan<- *dbus.Signal)
-	Close() error
-}
-
-//go:generate moq -out dbus-bus-object_moq_test.go . dbusBusObject
-type dbusBusObject interface {
-	Call(method string, flags dbus.Flags, args ...interface{}) dbusCall
-	GetProperty(p string) (v dbus.Variant, e error)
-	SetProperty(p string, v interface{}) error
-}
-
-//go:generate moq -out dbus-call_moq_test.go . dbusCall
-type dbusCall interface {
-	Store(retvalues ...interface{}) error
-}
-
-// Player is an implementation of dbus org.mpris.MediaPlayer2.Player. see: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html
+// Player is an implementation of dbus org.mpris.MediaPlayer2.Player.
+// See: https://specifications.freedesktop.org/mpris-spec/2.2/Player_Interface.html.
 // Use NewPlayer to create a new instance with a connected session-bus via dbus.SessionBus.
-// Use NewPlayerWithConnection when you want to use a self-configured dbus.Conn
+// Use NewPlayerWithConnection when you want to use a self-configured dbus.Conn.
 type Player struct {
 	name       string
 	connection dbusConn
 }
 
 // NewPlayer returns a new Player which is already connected to session-bus via dbus.SessionBus.
-// Don't forget to Player.Close() the player after use.
+// Don't forget to Player.Close() the Player after use.
 func NewPlayer(name string) (Player, error) {
 	connection, err := dbusSessionBus()
 	if err != nil {
 		return Player{}, fmt.Errorf("failed to connect to session-bus: %w", err)
 	}
 
-	return Player{
-		name: name,
-		connection: &dbusConnWrapper{
-			conn: connection,
-		},
-	}, nil
+	return NewPlayerWithConnection(name, connection), nil
 }
 
 // NewPlayerWithConnection returns a new Player with the given name and connection.
-// Deprecated: NewPlayerWithConnection will be removed in future (v1.X.X).
+// Deprecated: NewPlayerWithConnection will be removed in the future.
 // Plain Struct initialization should be used instead.
 // Private fields will be public.
 func NewPlayerWithConnection(name string, connection *dbus.Conn) Player {
@@ -178,7 +152,7 @@ func (p Player) SeekTo(offset int64) {
 // If the playback is stopped, starts playing
 // If the uri scheme or the mime-type of the uri to open is not supported, this method does nothing and may raise an error. In particular, if the list of available uri schemes is empty, this method may not be implemented.
 // Clients should not assume that the Uri has been opened as soon as this method returns. They should wait until the mpris:trackid field in the Metadata property changes.
-// If the media player implements the TrackList interface, then the opened track should be made part of the tracklist, the org.mpris.MediaPlayer2.TrackList.TrackAdded or org.mpris.MediaPlayer2.TrackList.TrackListReplaced signal should be fired, as well as the org.freedesktop.DBus.Properties.PropertiesChanged signal on the tracklist interface.
+// If the media player implements the Playlists interface, then the opened track should be made part of the tracklist, the org.mpris.MediaPlayer2.Playlists.TrackAdded or org.mpris.MediaPlayer2.Playlists.TrackListReplaced signal should be fired, as well as the org.freedesktop.DBus.Properties.PropertiesChanged signal on the tracklist interface.
 // see: https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Method:OpenUri
 func (p Player) OpenURI(uri string) {
 	p.connection.Object(p.name, playerObjectPath).Call(playerOpenURIMethod, 0, uri)

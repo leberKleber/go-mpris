@@ -11,19 +11,20 @@ Implemented and tested against version 2.2. See: https://specifications.freedesk
 
 * [Example](#example)
 * [Features](#features)
-  * [Player](#player)
-    * [Methods](#methods)
-    * [Properties](#properties)
-    * [Signals](#signals)
-  * [TrackList](#tracklist)
-    * [Methods](#methods-1)
-    * [Properties](#properties-1)
-    * [Signals](#signals-1)
+    * [Player](#player)
+        * [Methods](#methods)
+        * [Properties](#properties)
+        * [Signals](#signals)
+    * [TrackList](#tracklist)
+        * [Methods](#methods-1)
+        * [Properties](#properties-1)
+        * [Signals](#signals-1)
+    * MediaPlayer
 * [Development](#development)
-  * [Versioning](#versioning)
-  * [Commits](#commits)
-  * [Mocks](#mocks)
-  * [Go Docs](#go-docs)
+    * [Versioning](#versioning)
+    * [Commits](#commits)
+    * [Mocks](#mocks)
+    * [Go Docs](#go-docs)
 
 ## Example
 
@@ -38,6 +39,31 @@ go build examples/cli.go
 ```
 
 ## Features
+
+### MediaPlayer (root interface)
+
+https://specifications.freedesktop.org/mpris-spec/2.2/Media_Player.html
+
+#### Methods
+
+| method | library path                | implemented              |
+|--------|-----------------------------|--------------------------|
+| Raise  | `mpris.MediaPlayer.Raise()` | :heavy_multiplication_x: |
+| Quit   | `mpris.MediaPlayer.Quit()`  | :heavy_multiplication_x: |
+
+#### Properties
+
+| property            | library path                                                | implemented              |
+|---------------------|-------------------------------------------------------------|--------------------------|
+| CanQuit             | `mpris.MediaPlayer.CanQuit() (bool, error)`                 | :heavy_multiplication_x: |
+| Fullscreen          | `mpris.MediaPlayer.Fullscreen() (bool, error)`              | :heavy_multiplication_x: |
+| CanSetFullscreen    | `mpris.MediaPlayer.CanSetFullscreen() (bool, error)`        | :heavy_multiplication_x: |
+| CanRaise            | `mpris.MediaPlayer.CanRaise() (bool, error)`                | :heavy_multiplication_x: |
+| HasTrackList        | `mpris.MediaPlayer.HasTrackList() (bool, error)`            | :heavy_multiplication_x: |
+| Identity            | `mpris.MediaPlayer.Identity() (string, error)`              | :heavy_multiplication_x: |
+| DesktopEntry        | `mpris.MediaPlayer.DesktopEntry() (string, error)`          | :heavy_multiplication_x: |
+| SupportedUriSchemes | `mpris.MediaPlayer.SupportedUriSchemes() ([]string, error)` | :heavy_multiplication_x: |
+| SupportedMimeTypes  | `mpris.MediaPlayer.SupportedMimeTypes() ([]string, error)`  | :heavy_multiplication_x: |
 
 ### Player
 
@@ -104,11 +130,10 @@ https://specifications.freedesktop.org/mpris-spec/2.2/Track_List_Interface.html
 
 #### Properties
 
-| property       | library path        | implemented              |
-|----------------|---------------------|--------------------------|
-| Tracks         | Not implemented yet | :heavy_multiplication_x: |
-| CanEditTracks  | Not implemented yet | :heavy_multiplication_x: |
-
+| property      | library path        | implemented              |
+|---------------|---------------------|--------------------------|
+| Tracks        | Not implemented yet | :heavy_multiplication_x: |
+| CanEditTracks | Not implemented yet | :heavy_multiplication_x: |
 
 #### Signals
 
