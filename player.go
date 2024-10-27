@@ -18,7 +18,7 @@ const (
 	playerPlayMethod             = playerInterface + ".Play"
 	playerSeekMethod             = playerInterface + ".SeekTo"
 	playerSetPositionMethod      = playerInterface + ".SetPosition"
-	playerOpenURIMethod          = playerInterface + ".OpenURI"
+	playerOpenURIMethod          = playerInterface + ".OpenUri"
 	playerPlaybackStatusProperty = playerInterface + ".PlaybackStatus"
 	playerLoopStatusProperty     = playerInterface + ".LoopStatus"
 	playerRateProperty           = playerInterface + ".Rate"
