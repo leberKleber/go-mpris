@@ -120,14 +120,14 @@ func TestPlayer_Methods(t *testing.T) {
 			expectedArgs:   []interface{}{dbus.ObjectPath("/my/path"), int64(123456789)},
 		},
 		{
-			name:      "OpenURI",
+			name:      "OpenUri",
 			givenName: "open-uri",
 			action: func(p *Player) {
 				p.OpenURI("file://my/uri")
 			},
 			expectedDest:   "open-uri",
 			expectedPath:   "/org/mpris/MediaPlayer2",
-			expectedMethod: "org.mpris.MediaPlayer2.Player.OpenURI",
+			expectedMethod: "org.mpris.MediaPlayer2.Player.OpenUri",
 			expectedFlags:  0,
 			expectedArgs:   []interface{}{"file://my/uri"},
 		},
