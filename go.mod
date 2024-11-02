@@ -1,8 +1,8 @@
 module github.com/leberKleber/go-mpris
 
-go 1.21
+go 1.23
 
-toolchain go1.21.5
+toolchain go1.23.1
 
 retract v1.1.0 // Published accidentally.
 
